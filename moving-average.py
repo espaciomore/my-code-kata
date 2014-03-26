@@ -21,63 +21,63 @@ from decimal import Decimal
 import os
 
 def download( src,dst='/tmp/data.csv' ):
-	try:
-		return urlretrieve( src,dst )
-	except Exception as e:
-		print e
-	return None
+  try:
+    return urlretrieve( src,dst )
+  except Exception as e:
+    print e
+  return None
 
 def decodecsv( src,mode='rb' ):
-	data = []
-	with open( src,mode ) as csv_file:
-		try:
-			table = reader( csv_file )
-			for row in table:
-				data.append( row )
-		except Exception as e:
-			return None
-		finally:
-			csv_file.close()
-	return data
+  data = []
+  with open( src,mode ) as csv_file:
+    try:
+      table = reader( csv_file )
+      for row in table:
+        data.append( row )
+    except Exception as e:
+      return None
+    finally:
+      csv_file.close()
+  return data
 
 def movingaverage( data,d=0,v=6,w=10,l=100 ):
-	try:
-		ma = []
-		for i in range(w-1,l):
-			s = 0.0
-			for j in range(0,w):
-				s += float(data[i-j][v])
-			ma.append([ data[i-j][d], s/w ])
-		return ma
-	except Exception as e:
-		print e
-	return None
+  try:
+    ma = []
+    for i in range(w-1,l):
+      s = 0.0
+      for j in range(0,w):
+        s += float(data[i-j][v])
+      ma.append([ data[i-j][d], s/w ])
+    return ma
+  except Exception as e:
+    print e
+  return None
 
 def format( data,d=0,v=6,w=10,l=100 ):
-	try:
-		tmp = []
-		for row in data[ 0:l-w+1 ]:
-			tmp.append([ row[d],float(row[v]) ])
-		return tmp
-	except Exception as e:
-		print e
-	return None	
+  try:
+    tmp = []
+    for row in data[ 0:l-w+1 ]:
+      tmp.append([ row[d],float(row[v]) ])
+    return tmp
+  except Exception as e:
+    print e
+  return None 
 
 def printgraph( data ):
-	maxi = 0
-	mini = 100
-	for label,value in data:
-		if value > maxi:
-			maxi = value
-		if value < mini:
-			mini = value
-	for label,value in data:
-		ln = label + ' ' + str(Decimal(value).quantize(Decimal('.01')))
-		for fv in range(int(mini),int(value),1): 
-			ln += '|'
-		for dv in range(0,int((value-int(value))*10),1):
-			ln += '|'
-		print ln
+  maxi = 0
+  mini = 100
+  for label,value in data:
+    if value > maxi:
+      maxi = value
+    if value < mini:
+      mini = value
+  for label,value in data:
+    ln = label + ' ' + str(Decimal(value).quantize(Decimal('.01')))
+    for fv in range(int(mini),int(value),1): 
+      ln += '|'
+    for dv in range(0,int((value-int(value))*10),1):
+      ln += '|'
+    print ln
 
 # uncomment the following code to execute functions
 
