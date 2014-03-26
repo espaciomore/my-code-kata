@@ -74,7 +74,8 @@ def printgraph( data ):
   for label,value in data:
     ln = label + ' ' + str(Decimal(value).quantize(Decimal('.01')))
     for fv in range(int(mini),int(value),1): 
-      ln += '|'
+      for n in range(1,10):
+        ln += '|'
     for dv in range(0,int((value-int(value))*10),1):
       ln += '|'
     print ln
