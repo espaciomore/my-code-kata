@@ -43,10 +43,10 @@ def decodecsv( src,mode='rb' ):
 def movingaverage( data,d=0,v=6,w=10,l=100 ):
   try:
     ma = []
-    for i in range(w-1,l):
+    for i in range(0,l-w):
       s = 0.0
       for j in range(0,w):
-        s += float(data[i-j][v])
+        s += float(data[i+j][v])
       ma.append([ data[i][d], s/w ])
     return ma
   except Exception as e:
