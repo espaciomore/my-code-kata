@@ -47,7 +47,7 @@ def movingaverage( data,d=0,v=6,w=10,l=100 ):
       s = 0.0
       for j in range(0,w):
         s += float(data[i-j][v])
-      ma.append([ data[i-j][d], s/w ])
+      ma.append([ data[i][d], s/w ])
     return ma
   except Exception as e:
     print e
