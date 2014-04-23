@@ -1,14 +1,15 @@
-# ArrayJmp - problem description
-#
-# Detailed error analysis:
-# - The reason for the error on my first try was that I only considered the loop 
-#   as a maximum iteration of Array.Length^2, though my solution is very safe it 
-#   is not as efficient when considering processing or execution time.
-# - My correct solution would be to have a record of visited indexes and also 
-#   consider both positive and negative bounderies.
-#
-# The corrected code:
-#
+/*
+ ArrayJmp - problem description
+
+ Detailed error analysis:
+ - The reason for the error on my first try was that I only considered the loop 
+   as a maximum iteration of Array.Length^2, though my solution is very safe it 
+   is not as efficient when considering processing or execution time.
+ - My correct solution would be to have a record of visited indexes and also 
+   consider both positive and negative bounderies.
+
+ The corrected code below...
+*/
 using System.IO;
 using System;
 
