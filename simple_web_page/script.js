@@ -49,7 +49,15 @@ var successCallback = function(data) {
     }
     for (key in data[i]) {
       var td = document.createElement('td');
-      td.innerHTML = data[i][key];
+      var value = data[i][key];
+      if ( typeof(value)=='string' && value.match(/[A-Z0-9\-\._]+@[A-Z0-9\-\._]+/i)) {
+        var anchor = document.createElement('a');
+        anchor.setAttribute('href','mailto:'+value);
+        anchor.innerHTML = value;
+        td.appendChild(anchor);
+      } else {
+        td.innerHTML = value;
+      };
       tr.appendChild(td);
     }
     tbody.appendChild(tr);
