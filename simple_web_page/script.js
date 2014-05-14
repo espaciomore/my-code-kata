@@ -1,3 +1,11 @@
+/*
+  Autor:  Manuel Cerda
+  Git:    espaciomore
+  
+  Collect data from a json file containing an array of objects.
+  Also, populate a table with those object's properties / key-value pairs.
+  
+*/
 function getData(url,callback) {
   var xmlhttp;
 
