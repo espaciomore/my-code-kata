@@ -1,4 +1,7 @@
 /*
+ Autor: Manuel Cerda
+ Git:   espaciomore 
+ 
  ArrayJmp - problem description
 
  Detailed error analysis:
