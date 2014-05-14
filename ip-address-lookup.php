@@ -1,18 +1,22 @@
 <?php
-
-// 1: IP address lookup
-// Terminal program will be executed like this:
-// ./program --database ./database.txt 10.1.2.3
-// Program description
-// database.txt will be a text file that contains IP address ranges in form of:
-// 10.1.0.0/16
-// 127.0.0.0/8
-// 192.168.8.0/24
-// ...
-// The task of the program is to find and print out all ranges for the IP address supplied as an
-// argument.
-// Expected output for the above may be:
-// 10.1.0.0/16
+/*
+  Autor: Manuel Cerda
+  Git:   espaciomore 
+  
+  1: IP address lookup
+  Terminal program will be executed like this:
+  ./program --database ./database.txt 10.1.2.3
+  Program description
+  database.txt will be a text file that contains IP address ranges in form of:
+  10.1.0.0/16
+  127.0.0.0/8
+  192.168.8.0/24
+  ...
+  The task of the program is to find and print out all ranges for the IP address supplied as an
+  argument.
+  Expected output for the above may be:
+  10.1.0.0/16
+*/
 
 $ip_to_int = function($network){
   $n_segments = explode('.', $network);
