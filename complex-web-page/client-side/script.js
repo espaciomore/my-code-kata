@@ -1,4 +1,11 @@
-
+/*
+  Author: Manuel Cerda
+  Git:    espaciomore
+  
+  Handle a collection of Users.
+  Add, Update, Delete, Find functionalities.
+  
+*/
 function Collection (options) {
   // a mock object of a collection item
   this.mock = options.mock || {};
