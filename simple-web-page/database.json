@@ -1,0 +1,17 @@
+[
+  {
+    'id':1,
+    'name':'john smith',
+    'email':'j.smith@sample.com'
+  },
+  {
+    'id':2,
+    'name':'barbara streisen',
+    'email':'barbaras@music.uk'
+  },
+  {
+    'id':3,
+    'name':'miguel perez',
+    'email':'m.perez@tri.com'
+  }
+]
