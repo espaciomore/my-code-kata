@@ -1,0 +1,37 @@
+[
+  {
+    "id":1,
+    "name":"john smith",
+    "email":"j.smith@samples.com",
+    "status":"active",
+    "password":""
+  },
+  {
+    "id":2,
+    "name":"barbara streisen",
+    "email":"barbaras@music.uk",
+    "status":"active",
+    "password":""
+  },
+  {
+    "id":3,
+    "name":"miguel perez",
+    "email":"m.perez@tri.com",
+    "status":"active",
+    "password":""
+  },
+  {
+    "id":4,
+    "name":"mary freedman",
+    "email":"m.freedman@abc.com",
+    "status":"deleted",
+    "password":""
+  },
+  {
+    "id":5,
+    "name":"peter greefing",
+    "email":"p.greefing@familyguy.com",
+    "status":"active",
+    "password":""
+  }
+]
