@@ -78,13 +78,15 @@ function Grid (options) {
     var thead = document.createElement('thead');
     var tbody = document.createElement('tbody');
 
-    for (i in this.headers) {
-      var th = document.createElement('th');
-          th.innerHTML = this.headers[i];
-      thead.appendChild(th);
-    };
-
     var len = data.length;
+
+    if (len > 0) {
+      for (i in this.headers) {
+        var th = document.createElement('th');
+            th.innerHTML = this.headers[i];
+        thead.appendChild(th);
+      };
+    }
     for (var i = 0; i < len; i++) {
       var tr = document.createElement('tr');
           tr.setAttribute('data-id',data[i]['id']);
@@ -95,6 +97,14 @@ function Grid (options) {
         tr.appendChild(td);
       }
       var td = document.createElement('td');
+
+      var del = document.createElement('button');
+          del.innerHTML = "-";
+          del.setAttribute('href','#delete');
+          del.className = 'btn-delete';
+          del.setAttribute('data-id',data[i]['id']);
+      //  add actions
+      td.appendChild(del);
 
       tr.appendChild(td);
 
@@ -200,11 +210,6 @@ function setEvents() {
 
   var clearBtn = document.getElementById('clear');
   clearBtn.onclick = function(e) {
-    var values = inputgroup.getValues();
-    if( values['id'] != undefined && values['id'] != ''){
-      var data = users.getList( {status:'active',id:parseInt(values['id'])} )[0];
-      users.delete(data);
-    }
     users.filter = {status: 'active'};
     inputgroup.clear();
     refresh();
@@ -220,6 +225,17 @@ function setEvents() {
     }
     refresh();
   }
+
+  var delBtns = document.getElementsByClassName('btn-delete');
+  for (var i = delBtns.length - 1; i >= 0; i--) {
+    delBtns[i].onclick = function(e){
+      var _id = e.currentTarget.dataset.id;
+      var data = users.getList( {status:'active',id:parseInt(_id)} )[0];
+      users.delete(data);
+      inputgroup.clear();
+      refresh();
+    }
+  };
 }
 
 function refresh() {
