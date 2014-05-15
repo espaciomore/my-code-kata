@@ -96,14 +96,6 @@ function Grid (options) {
       }
       var td = document.createElement('td');
 
-      var del = document.createElement('button');
-          del.innerHTML = "X";
-          del.setAttribute('href','#delete');
-          del.className = 'btn-delete';
-          del.setAttribute('data-id',data[i]['id']);
-      //  add actions
-      td.appendChild(del);
-
       tr.appendChild(td);
 
       tbody.appendChild(tr);
@@ -191,14 +183,13 @@ function setEvents() {
 
   var sendBtn = document.getElementById('update-create');
   sendBtn.onclick = function(e){
-    var userID = document.getElementsByName('id')[0];
-    var data = users.getList( {status:'active',id:parseInt(userID.value)} )[0];
-        data = data || {};
     var values = inputgroup.getValues();
+    var data = users.getList( {status:'active',id:parseInt(values['id'])} )[0];
+        data = data || {};
     data['name'] = values['name'];
     data['email'] = values['email'];
     data['password'] = values['password'];
-    if(userID.value != undefined && userID.value != ''){
+    if( values['id'] != undefined && values['id'] != ''){
       users.update( data );
     } else {
       users.create( data );
@@ -209,6 +200,11 @@ function setEvents() {
 
   var clearBtn = document.getElementById('clear');
   clearBtn.onclick = function(e) {
+    var values = inputgroup.getValues();
+    if( values['id'] != undefined && values['id'] != ''){
+      var data = users.getList( {status:'active',id:parseInt(values['id'])} )[0];
+      users.delete(data);
+    }
     users.filter = {status: 'active'};
     inputgroup.clear();
     refresh();
@@ -224,17 +220,6 @@ function setEvents() {
     }
     refresh();
   }
-
-  var delBtns = document.getElementsByClassName('btn-delete');
-  for (var i = delBtns.length - 1; i >= 0; i--) {
-    delBtns[i].onclick = function(e){
-      var _id = e.currentTarget.dataset.id;
-      var data = users.getList( {status:'active',id:parseInt(_id)} )[0];
-      users.delete(data);
-      inputgroup.clear();
-      refresh();
-    }
-  };
 }
 
 function refresh() {
