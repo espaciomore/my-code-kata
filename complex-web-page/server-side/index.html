@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>espaciomore</title>
+    <meta name="description" content="complex web page">
+    <meta name="keywords" content="style,table,javascript">
+    <meta name="author" content="espaciomore">
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div>
+      <h1>Complex Web Page</h1>
+      <h3>Make a test admin web page that has the following</h3>
+      <ul>
+        <li>Add User</li>
+        <li>Edit User</li>
+        <li>Delete User</li>
+        <li>Search User</li>
+      </ul>
+      <h3>Each user should have at least these properties</h3>
+      <ul>
+        <li>Full name</li>
+        <li>Username</li>
+        <li>E-mail</li>
+        <li>Password</li>
+      </ul>
+      <h3>Other properties may be implemented.</h3>
+      <ul>
+        <li>List should have pagination at certain record limit (e.g. 10 records per page).</li>
+      </ul>
+      <h3>Bonus points</h3>
+      <ul>
+        <li>Local storage of data</li>
+        <li>Looks good (and font icons)</li>
+        <li>Duplicates not allowed</li>
+        <li>Search works well</li>
+        <li>Performance</li>
+        <li>Additional clever bits</li>
+      </ul>
+      <p>Implementation will be on PHP with a service oriented architecture as REST API</p>
+      <div class="container">
+        <div class="api">
+          <h2>/ users</h2>
+          <div class="method">GET:</div><div class="description">download list of users</div>
+          <div class="method">POST:</div><div class="description">create new user</div>
+        </div>
+        <div class="api">
+          <h2>/ users / 1</h2>
+          <div class="method">GET:</div><div class="description">download existing user</div>
+          <div class="method">PUT:</div><div class="description">update existing user</div>
+          <div class="method">DELETE:</div><div class="description">remove existing user</div>
+        </div>
+        <div class="api">
+          <h2>/ users ? q=</h2>
+          <div class="method">GET:</div><div class="description">query on all users</div>
+        </div>
+      <div>
+    <div>
+    <script src="script.js" type="text/javascript"></script>
+  </body>
+</html>
