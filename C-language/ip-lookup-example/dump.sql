@@ -1,0 +1,9 @@
+BEGIN TRANSACTION;
+  CREATE TABLE iptable (
+    id INTEGER PRIMARY KEY,
+    ip TEXT
+  );
+  INSERT INTO 'iptable' VALUES (1,'10.1.0.0/16');
+  INSERT INTO 'iptable' VALUES (2,'127.0.0.0/8');
+  INSERT INTO 'iptable' VALUES (3,'192.168.8.0/24');
+COMMIT;
