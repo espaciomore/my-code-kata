@@ -4,7 +4,7 @@
   
   1: IP address lookup
   Terminal program will be executed like this:
-  > ./program --database-sqlite3 --db name 10.1.2.3
+  > ./program [--database-sqlite3] --db name 10.1.2.3
   Program description
   database.db will be a sqlite3 database that contains IP address ranges in form of:
   > sqlite3 database.db "SELECT * FROM iptable;"
@@ -18,20 +18,52 @@
   10.1.0.0/16
 */
 #include <stdio.h>
+#include <stdlib.h>
 #include <sqlite3.h> 
+
+void explode(char *c, char *str, char *strR[])
+{
+  char* tok;
+
+  tok = strtok(str, c);
+  while(tok != NULL){
+    tok = strtok(NULL, c);
+  }
+}
+
+static int callback(void *data, int argc, char **argv, char **azColName)
+{
+  int i;
+  for(i=0; i<argc; i++){
+    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+  }
+  printf("\n");
+  return 0;
+}
 
 void main(int argc, char* argv[])
 {
   sqlite3 *db;
-  char *zErrMsg = 0;
   int rc;
+  char *sql;
 
-  rc = sqlite3_open("database.db", &db);
+  rc = sqlite3_open("temp.db", &db);
 
-  if( rc ){
+  if( rc != SQLITE_OK ){
     fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-  }else{
-    fprintf(stderr, "Opened database successfully\n");
+    return 1;
   }
+
+  /* Create SQL statement */
+  sql = "SELECT * from iptable";
+
+  /* Execute SQL statement */
+  rc = sqlite3_exec(db, sql, callback, NULL, NULL);
+  if( rc != SQLITE_OK ){
+    fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+    return 1;
+  }
+
   sqlite3_close(db);
+  return 0;
 }
