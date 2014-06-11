@@ -1,1 +1,34 @@
-var evaluate = function( obj, options ) {for(var i in obj.childNodes) {var isMatch = true;var index = parseInt(i,10);if( !isNaN(index) ) {var child = obj.childNodes[index];for(var key in options) {if( child[key] !== options[key] ) {isMatch = false;}}if(isMatch)return child;if( typeof(child) === 'object' && Object.prototype.hasOwnProperty.call(child,'tagName') && (child.childNodes.length >= 1 || child.tagName === 'FRAME') ) {var e = evaluate( child.tagName === 'FRAME' ? child.contentWindow.document : child, options );if(e != undefined)return e;}delete child;}}};
+/**
+ * Author:  Manuel Cerda
+ * Git:     espaciomore
+ * 
+ * Description: INDIO can find any xhtml element by its native properties.
+ * 
+ */
+var INDIO = INDIO || (function(){
+  this.find = function( element, properties ) {
+    for(var i in element.childNodes) {
+      var isMatch = true;
+      var index = parseInt(i,10);
+      if( !isNaN(index) ) {
+        var child = element.childNodes[index];
+        for(var key in properties) {
+          if( child[key] !== properties[key] ) {
+            isMatch = false;
+          }
+        }
+        if(isMatch) return child;
+        if(typeof(child) !== 'object') continue;
+        if( Object.prototype.hasOwnProperty.call(child,'tagName') && (child.childNodes.length >= 1 || child.tagName === 'FRAME') ) {
+          var e = this.find( child.tagName === 'FRAME' ? child.contentWindow.document : child, properties );
+          if(e != undefined) return e;
+        }
+        delete child;
+      }
+    }
+  };
+  return this;
+})();
+
+var e = INDIO.find( window.document, { tagName:'A',innerHTML:'Click Here!' } );
+if(e) e.click();
