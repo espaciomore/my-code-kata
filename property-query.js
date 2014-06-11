@@ -30,5 +30,5 @@ var INDIO = INDIO || (function(){
   return this;
 })();
 
-var e = INDIO.find( window.document, { tagName:'A',innerHTML:'Click Here!' } );
-if(e) e.click();
+//  var e = INDIO.find( window.document, { tagName:'A',innerHTML:'Click Here!' } );
+//  if(e) e.click();
