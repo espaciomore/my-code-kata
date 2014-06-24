@@ -13,11 +13,18 @@ var INDIO = INDIO || (function(){
       if( !isNaN(index) ) {
         var child = element.childNodes[index];
         for(var key in properties) {
-          if( child[key] !== properties[key] ) {
+          if( key !== 'index' && child[key] !== properties[key] ) {
             isMatch = false;
           }
         }
-        if(isMatch) return child;
+        if(isMatch){
+          if(options.index > 0){
+            options.index--;
+            continue;
+          }else{
+            return child;
+          }
+        }
         if(typeof(child) !== 'object') continue;
         if( Object.prototype.hasOwnProperty.call(child,'tagName') && (child.childNodes.length >= 1 || child.tagName === 'FRAME') ) {
           var e = this.find( child.tagName === 'FRAME' ? child.contentWindow.document : child, properties );
