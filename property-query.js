@@ -7,16 +7,16 @@
  */
 var INDIO = INDIO || (function(){
   this.find = function( element, properties ) {
+    if(properties.object && element[ properties.object ]){
+      return element[ properties.object ];
+    }
     for(var i in element.childNodes) {
       var isMatch = true;
       var index = parseInt(i,10);
       if( !isNaN(index) ) {
         var child = element.childNodes[index];
         for(var key in properties) {
-          if( key === 'object' && child[ properties[key] ] === undefined ){
-            isMatch = false;
-          }
-          if( key !== 'index' && child[key] !== properties[key] ) {
+          if(key !== 'index' && child[key] !== properties[key]){
             isMatch = false;
           }
         }
