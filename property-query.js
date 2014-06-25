@@ -18,8 +18,8 @@ var INDIO = INDIO || (function(){
           }
         }
         if(isMatch){
-          if(options.index > 0){
-            options.index--;
+          if(properties.index > 0){
+            properties.index--;
             continue;
           }else{
             return child;
