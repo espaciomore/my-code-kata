@@ -13,6 +13,9 @@ var INDIO = INDIO || (function(){
       if( !isNaN(index) ) {
         var child = element.childNodes[index];
         for(var key in properties) {
+          if( key === 'object' && child[ properties[key] ] === undefined ){
+            isMatch = false;
+          }
           if( key !== 'index' && child[key] !== properties[key] ) {
             isMatch = false;
           }
