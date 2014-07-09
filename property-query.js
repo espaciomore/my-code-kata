@@ -29,7 +29,7 @@ var INDIO = INDIO || (function(){
           }
         }
         if(typeof(child) !== 'object') continue;
-        if( Object.prototype.hasOwnProperty.call(child,'tagName') && (child.childNodes.length >= 1 || child.tagName === 'FRAME') ) {
+        if( child.tagName !== undefined/*Object.prototype.hasOwnProperty.call(child,'tagName')*/ && (child.childNodes.length >= 1 || child.tagName === 'FRAME') ) {
           var e = this.find( child.tagName === 'FRAME' ? child.contentWindow.document : child, properties );
           if(e != undefined) return e;
         }
