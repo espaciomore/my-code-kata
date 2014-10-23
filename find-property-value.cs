@@ -1,3 +1,10 @@
+/**
+ * Author:  Manuel Cerda
+ * Git:     espaciomore
+ * 
+ * Description: this method is used to find the property path for an abject's value
+ * 
+ */
 using System;
 using System.Diagnostics;
 
