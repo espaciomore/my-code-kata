@@ -12,7 +12,7 @@ namespace my_code_kata
 {
   partial static class my_code_kata
   {
-    protected static bool FindPropertyValue(Object input, string value, ref List<string> retList, string output = "")
+    protected static bool FindPropertyValue(Object input, string value, ref List<string> retList, string output = "", bool debugIt)
     {
         if (String.IsNullOrEmpty(output))
         {
@@ -23,10 +23,12 @@ namespace my_code_kata
 
         foreach (var prop in props)
         {
-            // Debug.WriteLine(output + "." +prop.Name);
+            if(debugIt){
+              Debug.WriteLine(output + "." +prop.Name);
+            }
             Object propValue = prop.GetValue(input, null);
 
-            if (propValue is String || propValue is Int32 || propValue is Decimal)
+            if (propValue is String || propValue is Int32 || propValue is Decimal || propValue is DateTime)
             {
                 if (propValue.ToString() == value)
                 {
@@ -38,14 +40,14 @@ namespace my_code_kata
             {
                 foreach (var item in (Array) propValue)
                 {
-                    FindPropertyValue(item, value, ref retList, output + "." + prop.Name);
+                    FindPropertyValue(item, value, ref retList, output + "." + prop.Name, debugIt);
                 }
             }
             else
             {
                 if (propValue != null)
                 {
-                    FindPropertyValue(propValue, value, ref retList, output + "." + prop.Name);
+                    FindPropertyValue(propValue, value, ref retList, output + "." + prop.Name, debugIt);
                 }
             }
         }
