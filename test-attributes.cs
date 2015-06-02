@@ -46,6 +46,8 @@ namespace MyCodeKata
         [TestInitialize()]
         public virtual void TestInitialize()
         {
+            var description = GetTestAttribute(typeof(DescriptionAttribute), "Description");
+            
             Playback.PlaybackSettings.LoggerOverrideState = HtmlLoggerState.DefaultTraceLevel;
             Playback.PlaybackSettings.MaximumRetryCount = 1;
             Playback.PlaybackSettings.SearchTimeout = 60000;
