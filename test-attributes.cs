@@ -15,6 +15,7 @@ namespace MyCodeKata
     public class TestClassName
     {
         [TestMethod]
+        [TestProperty("Version", "1.0")]
         [Description("Hello World description!")]
         public void Test_Method()
         {
@@ -34,6 +35,10 @@ namespace MyCodeKata
                 { 
                     case "DescriptionAttribute":
                         attributeValue = customAttribute.Description;
+                        break;
+                    case "TestPropertyAttribute":
+                        if( customAttribute.Name == propName)
+                            attributeValue = customAttribute.Value;
                         break;
                 }
             }
