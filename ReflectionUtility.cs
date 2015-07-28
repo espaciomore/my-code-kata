@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FASTSelenium.Common
+namespace MyCodeKata
 {
     public static class ReflectionUtility
     {
