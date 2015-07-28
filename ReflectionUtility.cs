@@ -1,3 +1,5 @@
+//  Taken from https://handcraftsman.wordpress.com/2008/11/11/how-to-get-c-property-names-without-magic-strings/
+//
 using System;
 using System.Collections.Generic;
 using System.Globalization;
