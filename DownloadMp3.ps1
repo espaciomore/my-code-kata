@@ -1,4 +1,5 @@
-# Download all desired files from a Website
+# Description: I created this script because I wanted to download a list of mp3 files from a website
+# DownloadMp3 is a function that takes the web url as a parameter then download all links containing mp3 files
 
 function DownloadMp3 
 {
