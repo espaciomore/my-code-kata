@@ -7,7 +7,7 @@ function DownloadMp3
   
   foreach($file in $files)
   {
-    $destination = (".\" + $file.innerText.Replace('[', '``[').Replace(']', '``]').Trim())
+    $destination = (".\" + $file.innerText.Replace('[', '(').Replace(']', ')').Trim())
     if(!(Test-Path $destination))
     {
       Write-Host ("Downloading file: " + $destination)
