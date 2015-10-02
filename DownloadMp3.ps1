@@ -2,7 +2,8 @@
 
 function DownloadMp3 
 {
-  $html = Invoke-WebRequest -Uri $args[0]
+  param($uri)
+  $html = Invoke-WebRequest -Uri $uri
   $files = $html.ParsedHtml.getElementsByTagName("a") | where{ $_.href -like "*.mp3" }
   
   foreach($file in $files)
