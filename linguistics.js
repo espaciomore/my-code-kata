@@ -30,7 +30,7 @@
 //              => [ 0.4049586776859504, 0.4166666666666667, 1 ]
 
 
-this[ 'palindrome' ] = ( word ) =>
+this[ 'palindrome' ] = ( photon ) =>
 {
   let f = ( x, y ) =>
   {
@@ -46,11 +46,11 @@ this[ 'palindrome' ] = ( word ) =>
   }
 
   let probabilities = []
-  let space = word.length
+  let space = photon.length
   let neutron = space % 2
   let chi = Math.floor( space / 2 )
-  let yin = word.substr( 0, chi + neutron )
-  let yan = word.substr( chi, space )
+  let yin = photon.substr( 0, chi + neutron )
+  let yan = photon.substr( chi, space )
 
   for ( let ki = 0; ki < chi + neutron ; ki++ )
   {
