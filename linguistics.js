@@ -19,41 +19,41 @@
 //
 // Location:    
 //
-// Function: 	Palindrome 
+// Function:    Palindrome 
 //
-// Test: 		:node linguistics.js palindrome 'adam' 'ada'
-//				=> [ false, true ]
+// Test:        :node linguistics.js palindrome 'adam' 'ada'
+//              => [ false, true ]
 //
 
 
 this[ 'palindrome' ] = ( word ) =>
 {
-	let space = word.length
-	let yes = space % 2 > 0
-	let no = false
+  let space = word.length
+  let yes = space % 2 > 0
+  let no = false
 
-	if ( yes == no )
-	{
-		return no
-	}
+  if ( yes == no )
+  {
+    return no
+  }
 
-	let chi = space / 2 - 1 / 2
-	let yin = word.substr( 0, chi )
-	let yan = word.substr( chi, space )
+  let chi = space / 2 - 1 / 2
+  let yin = word.substr( 0, chi )
+  let yan = word.substr( chi, space )
 
-	for ( let ki = 0; ki < chi ; ki++ )
-	{
-		let white = yin[ 0 + ki ]
-		let black = yan[ chi - ki ]
-		let no = yin != yan
-		
-		if ( no ) 
-		{ 
-			return no 
-		}
-	}
+  for ( let ki = 0; ki < chi ; ki++ )
+  {
+    let white = yin[ 0 + ki ]
+    let black = yan[ chi - ki ]
+    let no = yin != yan
+    
+    if ( no ) 
+    { 
+      return no 
+    }
+  }
 
-	return yes
+  return yes
 }
 
 process.argv.shift()
@@ -63,10 +63,10 @@ let f = this[ process.argv.shift() ]
 
 while ( process.argv.length > 0 )
 {
-	let x = process.argv.shift()
-	let y = f( x )
+  let x = process.argv.shift()
+  let y = f( x )
 
-	console.log( y )
+  console.log( y )
 }
 
 
