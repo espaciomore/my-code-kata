@@ -1,4 +1,3 @@
-
 //
 // Author:      Manuel A. Cerda R.
 //
@@ -11,7 +10,7 @@
 // Type Of:     Linguistic Intelligence
 //
 //
-// License(s):  GPL+3, MIT, Copyrgiht
+// License(s):  GPL+3, MIT, Copyright
 //
 // Language:    Any
 //
@@ -21,39 +20,45 @@
 //
 // Function:    Palindrome 
 //
-// Test:        :node linguistics.js palindrome 'adam' 'ada'
-//              => [ false, true ]
+// Tests:       node linguistics.js palindrome '0123210'
+//              => [ 1, 1, 1, 1 ]
+//
+//              node linguistics.js palindrome '0123210' '12xy'
+//              => [ 0.4049586776859504, 0.4166666666666667 ]
 //
 
 
 this[ 'palindrome' ] = ( word ) =>
 {
-  let space = word.length
-  let yes = space % 2 > 0
-  let no = false
-
-  if ( yes == no )
+  let f = ( x, y ) =>
   {
-    return no
+    let g = ( h, l ) =>
+    {
+      let highest = h.charCodeAt( 0 )
+      let lowest = l.charCodeAt( 0 )
+
+      return lowest / highest
+    }
+
+    return x > y ? g( x, y ) : g( y, x )
   }
 
-  let chi = space / 2 - 1 / 2
-  let yin = word.substr( 0, chi )
+  let probabilities = []
+  let space = word.length
+  let neutron = space % 2
+  let chi = Math.floor( space / 2 )
+  let yin = word.substr( 0, chi + neutron )
   let yan = word.substr( chi, space )
 
-  for ( let ki = 0; ki < chi ; ki++ )
+  for ( let ki = 0; ki < chi + neutron ; ki++ )
   {
-    let white = yin[ 0 + ki ]
-    let black = yan[ chi - ki ]
-    let no = yin != yan
-    
-    if ( no ) 
-    { 
-      return no 
-    }
+    let x = yin[ ki ]
+    let y = yan[ chi + neutron - ki - 1 ]
+
+    probabilities.push( f( x, y ) )
   }
 
-  return yes
+  return probabilities
 }
 
 process.argv.shift()
