@@ -16,7 +16,7 @@
 //
 // Revision:    1.0.0
 //
-// Location:    
+// Location:    https://raw.githubusercontent.com/espaciomore/my-code-kata/master/linguistics.js
 //
 // Function:    Palindrome 
 //
