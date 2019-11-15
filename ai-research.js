@@ -7,7 +7,7 @@
 //              the Evolutionary Architecture or what is also known as the 
 //              Artificial Intelligence.
 //
-// Type Of:     Linguistic Intelligence
+// Type Of:     Linguistic, Spatial and Logical-Mathematical Intelligence
 //
 //
 // License(s):  GPL+3, MIT, Copyright
@@ -16,11 +16,11 @@
 //
 // Revision:    1.0.0
 //
-// Location:    https://raw.githubusercontent.com/espaciomore/my-code-kata/master/linguistics.js
+// Location:    https://raw.githubusercontent.com/espaciomore/my-code-kata/master/ai-research.js
 //
 // Function:    Palindrome 
 //
-// Tests:       > node linguistics.js palindrome
+// Tests:       > node ai-research.js palindrome
 //              palindrome( 0123210 ) = [ 0,0,0,0 ]
 //              palindrome( aΦ.Θb ) = [ 0.01020408163265306,0.014989293361884369,0 ]
 //              palindrome( aΦbΘ ) = [ 0.8945652173913043,0.8950749464668094 ]
