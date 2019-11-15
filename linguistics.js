@@ -23,9 +23,11 @@
 // Tests:       node linguistics.js palindrome '0123210'
 //              => [ 1, 1, 1, 1 ]
 //
-//              node linguistics.js palindrome '0123210' '12xy'
+//              node linguistics.js palindrome '12xy'
 //              => [ 0.4049586776859504, 0.4166666666666667 ]
 //
+//              node linguistics.js palindrome '12#xy'
+//              => [ 0.4049586776859504, 0.4166666666666667, 1 ]
 
 
 this[ 'palindrome' ] = ( word ) =>
