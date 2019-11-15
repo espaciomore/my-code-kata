@@ -57,7 +57,7 @@ this[ 'palindrome' ] = ( journey ) =>
     pv.push( f( x, y ) )
   }
 
-  return probabilities
+  return pv
 }
 
 process.argv.shift()
