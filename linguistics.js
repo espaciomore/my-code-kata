@@ -20,6 +20,10 @@
 // Location:    
 //
 // Function: 	Palindrome 
+//
+// Test: 		:node linguistics.js palindrome 'adam' 'ada'
+//				=> [ false, true ]
+//
 
 
 this[ 'palindrome' ] = ( word ) =>
