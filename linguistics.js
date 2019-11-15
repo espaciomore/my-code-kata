@@ -55,13 +55,14 @@ this[ 'palindrome' ] = ( word ) =>
 process.argv.shift()
 process.argv.shift()
 
-while ( process.argv.length > 1 )
-{
-	let f = this[ process.argv.shift() ]
-	let x = process.argv.shift()
-	let y = f ( x )
+let f = this[ process.argv.shift() ]
 
-	process.argv.push( y )
+while ( process.argv.length > 0 )
+{
+	let x = process.argv.shift()
+	let y = f( x )
+
+	console.log( y )
 }
 
 
