@@ -42,7 +42,7 @@ this[ 'palindrome' ] = ( journey ) =>
     return x > y ? d( x, y ) : d( y, x )
   }
 
-  let probabilities = []
+  let pv = []
   let space = journey.length
   let neutron = space % 2
   let photon = Math.floor( space / 2 )
@@ -54,7 +54,7 @@ this[ 'palindrome' ] = ( journey ) =>
     let x = alfa[ ki ]
     let y = omega[ photon + neutron - ki - 1 ]
 
-    probabilities.push( f( x, y ) )
+    pv.push( f( x, y ) )
   }
 
   return probabilities
