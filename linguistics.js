@@ -20,42 +20,39 @@
 //
 // Function:    Palindrome 
 //
-// Tests:       node linguistics.js palindrome '0123210'
-//              => [ 1, 1, 1, 1 ]
+// Tests:       > node linguistics.js palindrome
+//              palindrome( 0123210 ) = [ 0,0,0,0 ]
+//              palindrome( aΦ.Θb ) = [ 0.01020408163265306,0.014989293361884369,0 ]
+//              palindrome( aΦbΘ ) = [ 0.8945652173913043,0.8950749464668094 ]
 //
-//              node linguistics.js palindrome '12xy'
-//              => [ 0.4049586776859504, 0.4166666666666667 ]
-//
-//              node linguistics.js palindrome '12#xy'
-//              => [ 0.4049586776859504, 0.4166666666666667, 1 ]
 
 
-this[ 'palindrome' ] = ( photon ) =>
+this[ 'palindrome' ] = ( journey ) =>
 {
   let f = ( x, y ) =>
   {
-    let g = ( h, l ) =>
+    let d = ( h, l ) =>
     {
-      let highest = h.charCodeAt( 0 )
-      let lowest = l.charCodeAt( 0 )
-
-      return lowest / highest
+      let yin = h.charCodeAt( 0 )
+      let yan = l.charCodeAt( 0 )
+      
+      return ( yin - yan ) / yin
     }
 
-    return x > y ? g( x, y ) : g( y, x )
+    return x > y ? d( x, y ) : d( y, x )
   }
 
   let probabilities = []
-  let space = photon.length
+  let space = journey.length
   let neutron = space % 2
-  let chi = Math.floor( space / 2 )
-  let yin = photon.substr( 0, chi + neutron )
-  let yan = photon.substr( chi, space )
+  let photon = Math.floor( space / 2 )
+  let alfa = journey.substr( 0, photon + neutron )
+  let omega = journey.substr( photon, space )
 
-  for ( let ki = 0; ki < chi + neutron ; ki++ )
+  for ( let ki = 0; ki < photon + neutron ; ki++ )
   {
-    let x = yin[ ki ]
-    let y = yan[ chi + neutron - ki - 1 ]
+    let x = alfa[ ki ]
+    let y = omega[ photon + neutron - ki - 1 ]
 
     probabilities.push( f( x, y ) )
   }
@@ -66,14 +63,24 @@ this[ 'palindrome' ] = ( photon ) =>
 process.argv.shift()
 process.argv.shift()
 
-let f = this[ process.argv.shift() ]
+let _ = process.argv.shift()
+let f = this[ _ ]
+let tests = [ '0123210', 'aΦ.Θb', 'aΦbΘ' ]
+
+if ( !process.argv.length )
+{
+  tests.forEach( ( test ) =>
+  {
+    process.argv.push( test )
+  })
+}
 
 while ( process.argv.length > 0 )
 {
   let x = process.argv.shift()
-  let y = f( x )
+  let pv = f( x )
 
-  console.log( y )
+  console.log( `${_}( ${x} ) = [ ${pv} ]` )
 }
 
 
