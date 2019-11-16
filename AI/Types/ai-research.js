@@ -76,8 +76,8 @@ this.test = ( args ) =>
         args.push( arg )
 
         let results = this.run( fname, args )
-        let got = results[0][ fname ][ arg ]
-        let expected = record[ fname ][ arg ]
+        let got = `${results[0][ fname ][ arg ]}`
+        let expected = `${record[ fname ][ arg ]}`
 
         output.push( [ got == expected, results.shift() ] )
       })
