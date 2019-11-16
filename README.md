@@ -1,8 +1,17 @@
 my-code-kata
 ============
 
-As a coder it is always a good idea to keep your mind active. For that reason, I have decided to keep a record of some problems I've solved for fun, work or collaborations.
+This repo is a collection of problems that I have solved for fun, work collaborations or research.
 
-The code are simple scripts and can be written in any language.
+The solutions are simple scripts that can be written in any language.
 
-Enjoy !
+AI Research
+===========
+
+AI Research has been my latest interest, specially the use of Evolutionary Software Architecture to create Artificial Intelligence.
+
+List:
+- [ai-research](https://github.com/espaciomore/my-code-kata/tree/master/AI/Types)
+
+
+`#ai` `#palindrome` `#nlp` `#linguistic` `#spatial` `#logical-mathematical`
