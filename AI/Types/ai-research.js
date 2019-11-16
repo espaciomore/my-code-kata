@@ -21,9 +21,7 @@
 // Function:    Palindrome 
 //
 // Tests:       > node ai-research.js test ascii.test.dump
-//              palindrome( 0123210 ) = [ 0,0,0,0 ]
-//              palindrome( aΦ.Θb ) = [ 0.01020408163265306,0.014989293361884369,0 ]
-//              palindrome( aΦbΘ ) = [ 0.8945652173913043,0.8950749464668094 ]
+//              [ [ [true/false], '[f( x )] = [expected value]' ] ]
 //
 
 
