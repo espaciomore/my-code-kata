@@ -76,9 +76,10 @@ this.test = ( args ) =>
         args.push( arg )
 
         let results = this.run( fname, args )
+        let got = results.shift()[ fname ][ arg ]
         let expected = record[ fname ][ arg ]
 
-        output.push( [ results[0].includes( `[ ${expected} ]` ), results[0] ] )
+        output.push( [ got == expected, got ] )
       })
     })
   })
@@ -97,16 +98,17 @@ this.run = ( fname, args ) =>
     let pv = f( x )
     let pv_ = pv.map((v) =>
     {
-      return Number(v.toFixed(4))
+      return Number(v.toFixed(this.precision))
     })
 
-    output.push( `${fname}( ${x} ) = [ ${pv_} ]` )
+    output.push( { [fname] : { [x] : pv_ } } )
   }
   while ( args.length > 0 )
 
   return output
 }
 
+this.precision = process.PRECISION || 4
 this.args = process.argv.slice(2)
 this.fname = this.args.shift()
 
