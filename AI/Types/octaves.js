@@ -38,10 +38,11 @@ this.octaves = ( Hz ) =>
   }
   
   let pv = []
-  let lowest = Math.log2( 19000 / Hz )
-  let highest = Math.log2( 19000 / 31 )
-  let v1 = f( lowest, highest )
-  let v2 = 1 - v1
+  let lower = Math.log2( 19000 / Hz )
+  let hertz = Math.log2( 19000 / 31 )
+  let higher = Math.log2( Hz / 31 )
+  let v1 = f( lower, hertz )
+  let v2 = f( higher, hertz )
 
   pv.push( v1, v2 )
   
