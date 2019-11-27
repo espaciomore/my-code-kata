@@ -38,11 +38,11 @@ this.octaves = ( Hz ) =>
   }
   
   let pv = []
-  let out = Math.log2( Hz / 31 )
-  let _in = Math.log2( 19000 / Hz )
-  let air = Math.log2( 19000 / 31 )
-  let v1 = f( _in, air )
-  let v2 = f( out, air )
+  let less = Math.log2( 19000 / Hz )
+  let more = Math.log2( Hz / 31 )
+  let space = Math.log2( 19000 / 31 )
+  let v1 = f( less, space )
+  let v2 = f( more, space )
 
   pv.push( v1, v2 )
   
