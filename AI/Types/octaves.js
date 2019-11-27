@@ -45,7 +45,6 @@ this.octaves = ( Hz ) =>
   let v2 = f( higher, hertz )
 
   pv.push( v1, v2 )
-  
 
   return pv
 }
