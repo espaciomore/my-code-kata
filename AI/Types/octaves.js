@@ -15,7 +15,7 @@
 //
 // Revision:    1.0.0
 //
-// Location:    https://raw.githubusercontent.com/espaciomore/my-code-kata/master/AI/Types/palindrome.js
+// Location:    https://raw.githubusercontent.com/espaciomore/my-code-kata/master/AI/Types/octaves.js
 //
 // Function:    Octaves 
 //
@@ -24,6 +24,29 @@
 //
 this.octaves = ( Hz ) =>
 {
-  return [ Math.log2( Hz / 31 ), Math.log2( 19 * 1000 / Hz ) ]
+  let f = ( x, y ) => 
+  {
+    let d = ( h, l ) =>
+    {
+      let yin = h
+      let yan = l
+
+      return ( yin - yan ) / yin
+    }
+
+    return x > y ? d( x, y ) : d( y, x )
+  }
+  
+  let pv = []
+  let alpha = Math.log2( Hz / 31 )
+  let omega = Math.log2( 19000 / Hz )
+  let proton = Math.log2( 19000 / 31 )
+  let v1 = f( alpha, proton )
+  let v2 = f( proton, omega )
+
+  pv.push( v1, v2 )
+  
+
+  return pv
 }
 // EOF
