@@ -150,6 +150,6 @@ module Day3
   end
 end
 
- include Day3
-puts Day3.test
+# include Day3
+# Day3.test
 # EOF
