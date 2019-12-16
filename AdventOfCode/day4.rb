@@ -27,9 +27,8 @@ module Day4
         groups[d.to_i] += 1 unless groups[d.to_i].nil?
         groups[d.to_i] = 1 if groups[d.to_i].nil?
       end  
-      groups.map! { |n| n.nil? || n.size < 2 ? nil : n }
-      groups.compact!
-      return groups.size == 0 ? true : groups.last == 2 && groups.all? { |size| size % 2 == 0 }
+      groups.select! { |n| !n.nil? && n > 1 }
+      return groups.size == 0 ? true : groups.last == 2 && groups.all? { |n| n % 2 == 0 }
     end  
 
     def find_valid_passwords_in_range(r)
