@@ -83,6 +83,6 @@ module Day2
   end
 end
 
- include Day2
- puts Day2.test
+# include Day2
+# puts Day2.test
 # EOF
