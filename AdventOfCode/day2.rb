@@ -48,4 +48,41 @@ module Day2
 
     nil
   end
+
+  def puzzle
+    txt = File.read('day2_puzzle.txt').to_s
+    masses = txt.split(",").map { |str| str.to_i }
+  end
+
+  def test
+    results =[]
+      results << { :got => int_code( [1,0,0,0,99] )[0],
+                  :expected => 2 }
+      results << { :got => int_code( [2,3,0,3,99] )[3],
+                  :expected => 6 }
+      results << { :got => int_code( [2,4,4,5,99,0] )[5],
+                  :expected => 9801 }
+      results << { :got => int_code( [1,1,1,4,99,5,6,0,99] )[0],
+                  :expected => 30 }
+      results << { :got => int_code( puzzle )[0],
+                  :expected => 3790689 }            
+      results << { :got => find_noun_and_verb( 19690720, puzzle ),
+                  :expected => [65, 33] } # 6533
+
+      passed = []; failed = []
+
+      results.each do |result|
+        if (result[:got] != result[:expected])
+          failed << result
+        else
+          passed << result
+        end
+      end
+
+      "#{passed.size} passed\n#{failed.size} failed#{' ' if failed.size > 0}#{failed if failed.size > 0}"
+  end
 end
+
+# include Day2
+# puts Day2.test
+# EOF
