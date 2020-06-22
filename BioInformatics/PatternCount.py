@@ -6,12 +6,12 @@ def PatternCount(text, pattern):
 
   return count
 
-import os
-import sys
+# import os
+# import sys
 
-f = open(sys.argv[1], 'r')
+# f = open(sys.argv[1], 'r')
 
-text = f.readline().strip()
-pattern = f.readline().strip()
+# text = f.readline().strip()
+# pattern = f.readline().strip()
 
-print(PatternCount(text, pattern))
+# print(PatternCount(text, pattern))
