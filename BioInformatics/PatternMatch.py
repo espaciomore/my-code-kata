@@ -6,12 +6,12 @@ def PatternMatch(pattern, gnome):
   
   return ' '.join(positions)
 
-import os
-import sys
+# import os
+# import sys
 
-f = open(sys.argv[1], 'r')
+# f = open(sys.argv[1], 'r')
 
-pattern = f.readline().strip()
-gnome = f.readline().strip()
+# pattern = f.readline().strip()
+# gnome = f.readline().strip()
 
-print(PatternMatch(pattern, gnome))
+# print(PatternMatch(pattern, gnome))
