@@ -34,7 +34,7 @@ def decode_secret_message(url):
         matrix[data[0]][data[2]] = data[1]
 
     matrixT = [list(row) for row in zip(*matrix)]
-    print(matrixT)
+    
     for row in reversed(matrixT):
         line = "".join(row)
         print(line)
