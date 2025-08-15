@@ -37,4 +37,12 @@ def decode_secret_message(url):
         line = "".join(row)
         print(line)
 
-decode_secret_message("secret_message.html")
+def main():
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python decode_secret_message.py <html_file>")
+        sys.exit(1)
+    decode_secret_message(sys.argv[1])
+
+if __name__ == "__main__":
+    main()
