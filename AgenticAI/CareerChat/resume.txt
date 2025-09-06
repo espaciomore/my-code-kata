@@ -1,0 +1,81 @@
+John Snow, B. Eng. in ComputerScience
+
+Permanent Residency: Quebec, Canada
+PhoneNumber: +1(555)555‑5555
+Email: john.snow@test.com
+Languages: English, French, Russian
+
+# PROFESSIONAL SUMMARY
+
+Dynamic Software Engineer & Solution Architect with extensive experience spanning software development, test automation, UI/UXdesign and cloud architecture. 
+Certified in AWS Solutions Architecture and ISTQB Advanced Test Automation Engineering, with proven ability to deliver high‑quality, scalable solutions across diverse industries.
+Adept at bridging technical and business needs, leading cross‑functional teams, and implementing Agile best practices for accelerated delivery.
+
+# CORE COMPETENCIES
+
+## Software Engineering: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, RESTful APIs
+## Quality Assurance & Test Automation: Selenium, Oracle ATS, TestRail, Performance & Load Testing, TDD/BDD
+## Cloud & Architecture: AWS Solutions Architecture, Event‑Driven Systems, Microservices, CI/CD
+## UI/UXDesign: Wireframing, Prototyping, User Journey Mapping
+## Other Skills: Data Science, Business Analysis, IoT, Social Network Analysis
+## Soft Skills: Accountability, Problem‑Solving, TimeManagement, Planning, TeamLeadership
+
+# PROFESSIONAL EXPERIENCE
+
+## Desjardins, Montréal, QC, Canada
+### Developer Analyst | Jan 2022 – Present
+- Lead modernization of customer savings & investment services, ensuring business continuity and innovation.
+- Maintain event‑driven architecture using Spring Boot & Apache Kafka.
+- Drive migration of web apps & APIs from Java8 to Java17 for enhanced performance and security.
+### Functional Analyst / QA | 2021 – 2022
+- Designed and documented client segmentation solutions using NAICS classification.
+- Created wireframes and prototypes through iterative collaboration with business analysts.
+- Developed test plans and joined development as a full‑stack engineer.
+
+## Introhive, SaintJohn, NB, Canada
+### QA & Test Automation Engineer | 2019 – 2021
+- Developed & maintained automated test frameworks and libraries.
+- Led automation strategy, improving test execution efficiency.
+
+## SynergiesCorp, Santiago de los Caballeros, DR
+### Test Automation Engineer | 2018 – 2019
+- Integrated Selenium with Oracle ATS to optimize financial application testing.
+- Developed proof‑of‑concepts for test automation solutions.
+
+## Instacarro, Santo Domingo, DR 
+### Test Automation Engineer | 2017 – 2018
+- Conducted static testing to detect design flaws in mobile applications.
+- Developed API and integration tests, uncovering critical defects.
+
+## mGage / Vivial, Santo Domingo, DR
+### Software Test Engineer | 2016 – 2017
+- Designed test plans and executed regression, performance, and acceptance tests.
+
+## Synergies Corp, Santiago de los Caballeros, DR 
+### QA / Test Automation Engineer | 2014 – 2016
+- Contributed to Selenium‑based automation solutions and maintained test plans.
+
+## Cakemail, Montréal, QC, Canada
+### Software Engineer / Web Developer | 2013 – 2014
+- Practiced full‑stack MVC development with RESTful APIs and MySQL performance optimization.
+
+## Intellisys Corp, Santiago de los Caballeros, DR
+### Software Engineer / Test Automation Developer | 2011–2013
+- Developed iOS POS applications and initial Selenium‑based automation solutions.
+
+# EDUCATION
+B. Eng. in Telematics (CS, Electronics, and Communications) – Pontificia Universidad Católica Madre y Maestra, 2012
+
+# CERTIFICATIONS & PROFESSIONAL DEVELOPMENT
+- AWS Certified Solutions Architect – Associate
+- ISTQB Certified Test Automation Engineer – Advanced Level
+- ISTQB Certified Tester Foundation Level
+- Specializations in Data Science, UI/UX Design, Business Analysis, International Business, Applied IoT (Coursera, UBC)
+- Cisco Certified Network Associate Training
+
+# TECHNOLOGY SUMMARY
+Languages & Frameworks: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, HTML, CSS 
+Testing Tools: Selenium, Oracle ATS, TestRail, Microsoft Testing Suite 
+Other Tools: Git, Linux, macOS, AWS, CI/CD Pipelines
+
+EOF

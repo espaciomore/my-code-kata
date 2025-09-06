@@ -1,0 +1,7 @@
+[project]
+name = "AgenticAI-CareerChat"
+version = "0.1.0"
+description = "Caht app using an AI Agent and Evaluator architecture. It acts in behalf of a given person to answer questions about the professional career based on a given resume."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
