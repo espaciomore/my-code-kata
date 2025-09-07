@@ -1,9 +1,9 @@
-John Snow, B. Eng. in ComputerScience
+Manuel Cerda, B. Eng. in ComputerScience
 
 Permanent Residency: Quebec, Canada
 PhoneNumber: +1(555)555‑5555
 Email: john.snow@test.com
-Languages: English, French, Russian
+Languages: English, French, Spanish
 
 # PROFESSIONAL SUMMARY
 
@@ -78,4 +78,4 @@ Languages & Frameworks: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, 
 Testing Tools: Selenium, Oracle ATS, TestRail, Microsoft Testing Suite 
 Other Tools: Git, Linux, macOS, AWS, CI/CD Pipelines
 
-EOF
+END

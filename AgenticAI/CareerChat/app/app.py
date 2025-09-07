@@ -6,6 +6,8 @@ from pydantic import BaseModel
 
 import gradio as gr
 import os
+import json
+import requests
 
 load_dotenv(override=True)
 
@@ -19,13 +21,13 @@ def read_file(file_path):
     return content
 
 resume = read_file("./resume.txt")
-name = "John Snow"
+name = "Manuel Cerda"
 rules = """
 - Answer in the same language as the question.
 - Be polite and friendly.
 - Do not speak like an assistant.
 - Do not ask questions deliberately.
-- If you don't know the answer, say so.
+- If you don't know the answer, say so and use unable_to_answer tool with the given question.
 """
 
 system_prompt = f"""
@@ -86,18 +88,74 @@ def rerun(reply, message, history, feedback):
 
     return response.choices[0].message.content
 
-def chat(message, history):
-    messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
+pushover_user = os.getenv("PUSHOVER_USER")
+pushover_token = os.getenv("PUSHOVER_TOKEN")
+pushover_url = "https://api.pushover.net/1/messages.json"
+
+def push_notification(message):
+    payload = {"user": pushover_user, "token": pushover_token, "message": message}
+    requests.post(pushover_url, payload)
+
+def unable_to_answer(question):
+    push_notification(f"Agent was unable to answer this : '{question}'")
+
+    return { "status": "OK" }
+
+unable_to_answer_meta = {
+    "name": "unable_to_answer",
+    "description": "Use this tool when unable to answer a question",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "question": {
+                "type": "string",
+                "description": "The given question"
+            },
+        },
+        "required": ["question"],
+        "additionalProperties": False
+    }
+}
+
+tools = [{"type": "function", "function": unable_to_answer_meta}]
+
+# For more details see https://platform.openai.com/docs/guides/function-calling
+
+def handle_tool_calls(tool_calls):
+    results = []
+    for tool_call in tool_calls:
+        arguments = json.loads(tool_call.function.arguments)
+        tool =  globals().get(tool_call.function.name)
+        result = tool(**arguments) if tool else {}
+        results.append({"role": "tool", "content": json.dumps(result), "tool_call_id": tool_call.id})
+
+    return results    
+
+def chat(message, history, messages=None):
+    if messages is None:
+        messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
+
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
-        messages=messages
+        messages=messages,
+        tools=tools
     )
-    reply = response.choices[0].message.content
-    evaluation = evaluate(reply, message, messages[:1])
 
-    if not evaluation.is_acceptable:
-        print(evaluation.feedback)
-        reply = rerun(reply, message, history, evaluation.feedback)
+    finish_reason = response.choices[0].finish_reason
+    response_message = response.choices[0].message
+
+    if finish_reason == "tool_calls":
+        results = handle_tool_calls(response_message.tool_calls)
+        messages.append(response_message)
+        messages.extend(results)
+        reply = chat(message, history, messages)
+    else :    
+        reply = response_message.content
+
+        evaluation = evaluate(reply, message, messages[:1])
+
+        if not evaluation.is_acceptable:
+            reply = rerun(reply, message, history, evaluation.feedback)
 
     return reply 
 

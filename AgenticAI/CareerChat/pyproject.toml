@@ -5,3 +5,8 @@ description = "Caht app using an AI Agent and Evaluator architecture. It acts in
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "app",
+]
