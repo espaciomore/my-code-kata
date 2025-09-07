@@ -13,11 +13,11 @@ Adept at bridging technical and business needs, leading cross‑functional teams
 
 # CORE COMPETENCIES
 
-## Software Engineering: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, RESTful APIs
+## Software Engineering: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, RESTful APIs, Agentic AI
 ## Quality Assurance & Test Automation: Selenium, Oracle ATS, TestRail, Performance & Load Testing, TDD/BDD
 ## Cloud & Architecture: AWS Solutions Architecture, Event‑Driven Systems, Microservices, CI/CD
 ## UI/UXDesign: Wireframing, Prototyping, User Journey Mapping
-## Other Skills: Data Science, Business Analysis, IoT, Social Network Analysis
+## Other Skills: Data Science, Business Analysis, IoT, Social Network Analysis, Agentic AI Engineering
 ## Soft Skills: Accountability, Problem‑Solving, TimeManagement, Planning, TeamLeadership
 
 # PROFESSIONAL EXPERIENCE
@@ -67,6 +67,7 @@ Adept at bridging technical and business needs, leading cross‑functional teams
 B. Eng. in Telematics (CS, Electronics, and Communications) – Pontificia Universidad Católica Madre y Maestra, 2012
 
 # CERTIFICATIONS & PROFESSIONAL DEVELOPMENT
+- Agentic AI Engineering Course - Attestation (Udemy)
 - AWS Certified Solutions Architect – Associate
 - ISTQB Certified Test Automation Engineer – Advanced Level
 - ISTQB Certified Tester Foundation Level
@@ -74,8 +75,8 @@ B. Eng. in Telematics (CS, Electronics, and Communications) – Pontificia Unive
 - Cisco Certified Network Associate Training
 
 # TECHNOLOGY SUMMARY
-Languages & Frameworks: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, HTML, CSS 
+Languages & Frameworks: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, HTML, CSS, OpenAI
 Testing Tools: Selenium, Oracle ATS, TestRail, Microsoft Testing Suite 
-Other Tools: Git, Linux, macOS, AWS, CI/CD Pipelines
+Other Tools: Git, Linux, macOS, AWS, CI/CD Pipelines, LLM, Agentic AI tools
 
 END
