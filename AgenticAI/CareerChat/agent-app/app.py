@@ -27,7 +27,7 @@ rules = """
 - If you don't know the answer, say so and use unable_to_answer tool with the given question.
 """
 
-system_prompt = f"""
+main_chat_agent_instructions = f"""
 You are acting in behalf of {name}.
 You are answering questions about your resume.
 
@@ -57,7 +57,7 @@ def unable_to_answer(question: str) -> dict:
 main_chat_agent = Agent(
     name="Main chat agent",
     model="gpt-4o-mini",
-    instructions=system_prompt,
+    instructions=main_chat_agent_instructions,
     tools=[unable_to_answer]
 ) 
 
@@ -65,7 +65,7 @@ class Evaluation(BaseModel):
     is_acceptable: bool
     feedback: str
 
-evaluator_system_prompt = f"""
+evaluator_agent_instructions = f"""
 You are an evaluator.
 You are evaluating the responses of an agent acting in behalf of {name}.
 Your task is to accept or reject based on the quality of the response.
@@ -86,36 +86,31 @@ evaluator_agent = Agent(
         model="gemini-2.0-flash", 
         openai_client=AsyncOpenAI(base_url="https://generativelanguage.googleapis.com/v1beta/openai/", api_key=os.getenv("GOOGLE_API_KEY"))
     ),
-    instructions=evaluator_system_prompt,
+    instructions=evaluator_agent_instructions,
     output_type=Evaluation
 )   
 
-def evaluator_user_prompt(reply, message, history):
-    user_prompt = f"Here's the conversation between the User and the Agent: \n\n{history}\n\n"
-    user_prompt += f"Here's the last message from the User: \n\n{message}\n\n"
-    user_prompt += f"Here's the last response from the Agent: \n\n{reply}\n\n"
-    user_prompt += "Please evaluate the last response by replying acceptable or rejected and your feedback."
-
-    return user_prompt
-
 async def evaluate(reply, message, history) -> Evaluation:
-    user_prompt = evaluator_user_prompt(reply, message, history)
+    evaluate_instructions = f"Here's the conversation between the User and the Agent: \n\n{history}\n\n"
+    evaluate_instructions += f"Here's the last message from the User: \n\n{message}\n\n"
+    evaluate_instructions += f"Here's the last response from the Agent: \n\n{reply}\n\n"
+    evaluate_instructions += "Please evaluate the last response by replying acceptable or rejected and your feedback."
     
-    response = await Runner.run(evaluator_agent, user_prompt)
+    response = await Runner.run(evaluator_agent, evaluate_instructions)
     return response.final_output
 
 async def rerun(reply, message, history, feedback):
-    updated_system_prompt = system_prompt
-    updated_system_prompt += f"\n\nChat History:\n{history}\n\n"
-    updated_system_prompt += "ATTENTION : You previous answer was rejected.\n"
-    updated_system_prompt += f"## Attempted answer:\n{reply}\n\n"
-    updated_system_prompt += f"## Rejection reason:\n{feedback}\n\n"
+    updated_instructions = main_chat_agent_instructions
+    updated_instructions += f"\n\nChat History:\n{history}\n\n"
+    updated_instructions += "ATTENTION : You previous answer was rejected.\n"
+    updated_instructions += f"## Attempted answer:\n{reply}\n\n"
+    updated_instructions += f"## Rejection reason:\n{feedback}\n\n"
     
     # Create a temporary agent with updated system prompt
     temp_agent = Agent(
         name="Retry agent",
         model="gpt-4o-mini",
-        instructions=updated_system_prompt,
+        instructions=updated_instructions,
         tools=[unable_to_answer]
     )
 
