@@ -13,7 +13,7 @@ Adept at bridging technical and business needs, leading cross‑functional teams
 
 # CORE COMPETENCIES
 
-## Software Engineering: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, RESTful APIs, Agentic AI
+## Software Engineering: Java, Spring Boot, Kafka, Angular, React, C#, PHP, C++, Python, Ruby, RESTful APIs, OpenAI
 ## Quality Assurance & Test Automation: Selenium, Oracle ATS, TestRail, Performance & Load Testing, TDD/BDD
 ## Cloud & Architecture: AWS Solutions Architecture, Event‑Driven Systems, Microservices, CI/CD
 ## UI/UXDesign: Wireframing, Prototyping, User Journey Mapping
