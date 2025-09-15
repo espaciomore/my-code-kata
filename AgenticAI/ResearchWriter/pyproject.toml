@@ -1,0 +1,12 @@
+[project]
+name = "AgenticAI-ResearchWriter"
+version = "0.1.0"
+description = "This research writer elaborates a search plan and creates a report based on the search results."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv.workspace]
+members = [
+    "agent-app",
+]
