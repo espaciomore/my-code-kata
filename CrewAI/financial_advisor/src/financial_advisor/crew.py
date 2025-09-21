@@ -4,6 +4,10 @@ from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai_tools import SerperDevTool
 from typing import List
 from .models.securities import SecuritiesNewsList, SecuritiesAdviceList
+from crewai.memory import LongTermMemory, ShortTermMemory, EntityMemory
+from crewai.memory.storage.rag_storage import RAGStorage
+from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
+
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
@@ -33,7 +37,8 @@ class FinancialAdvisor():
     def finance_director(self) -> Agent:
         return Agent(
             config=self.agents_config['finance_director'], # type: ignore[index]
-            verbose=True
+            verbose=True,
+            memory=True
         )
 
     @agent
@@ -72,10 +77,25 @@ class FinancialAdvisor():
         # To learn how to add knowledge sources to your crew, check out the documentation:
         # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 
+        rag_storage = RAGStorage(
+                embedder_config={
+                    "provider": "openai",
+                    "config": {
+                        "model": "text-embedding-3-small"
+                    }
+                },
+                type="short_term",
+                path="./memory/")
+        sqlite_storage = LTMSQLiteStorage(db_path="./memory/ltm_storage.db")    
+
         return Crew(
             agents=self.agents, # Automatically created by the @agent decorator
             tasks=self.tasks, # Automatically created by the @task decorator
             process=Process.sequential,
             verbose=True,
             # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            memory=True,
+            long_term_memory=LongTermMemory(storage=sqlite_storage),
+            short_term_memory=ShortTermMemory(storage=rag_storage),
+            entity_memory=EntityMemory(storage=rag_storage)
         )
