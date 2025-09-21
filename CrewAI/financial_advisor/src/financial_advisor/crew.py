@@ -1,14 +1,16 @@
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
+from crewai_tools import SerperDevTool
 from typing import List
+from .models.securities import SecuritiesNewsList, SecuritiesAdviceList
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
 
 @CrewBase
-class Financialadvisor():
-    """Financialadvisor crew"""
+class FinancialAdvisor():
+    """FinancialAdvisor crew"""
 
     agents: List[BaseAgent]
     tasks: List[Task]
@@ -23,6 +25,7 @@ class Financialadvisor():
     def financial_advisor(self) -> Agent:
         return Agent(
             config=self.agents_config['financial_advisor'], # type: ignore[index]
+            tools=[SerperDevTool()],
             verbose=True
         )
 
@@ -33,6 +36,13 @@ class Financialadvisor():
             verbose=True
         )
 
+    @agent
+    def report_writer(self) -> Agent:
+        return Agent(
+            config=self.agents_config['report_writer'], # type: ignore[index]
+            verbose=True
+        )    
+
     # To learn more about structured task outputs,
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
@@ -40,17 +50,25 @@ class Financialadvisor():
     def advisor_task(self) -> Task:
         return Task(
             config=self.tasks_config['advisor_task'], # type: ignore[index]
+            output_pydantic=SecuritiesNewsList,
         )
 
     @task
     def director_task(self) -> Task:
         return Task(
             config=self.tasks_config['director_task'], # type: ignore[index]
+            output_pydantic=SecuritiesAdviceList,
         )
+
+    @task
+    def report_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['report_task'], # type: ignore[index]
+        )        
 
     @crew
     def crew(self) -> Crew:
-        """Creates the Financialadvisor crew"""
+        """Creates the FinancialAdvisor crew"""
         # To learn how to add knowledge sources to your crew, check out the documentation:
         # https://docs.crewai.com/concepts/knowledge#what-is-knowledge
 

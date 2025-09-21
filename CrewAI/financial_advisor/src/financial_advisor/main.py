@@ -4,7 +4,7 @@ import warnings
 
 from datetime import datetime, timedelta
 
-from financialadvisor.crew import Financialadvisor
+from financial_advisor.crew import FinancialAdvisor
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -23,7 +23,7 @@ def run():
     }
     
     try:
-        Financialadvisor().crew().kickoff(inputs=inputs)
+        FinancialAdvisor().crew().kickoff(inputs=inputs)
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 
@@ -33,11 +33,11 @@ def train():
     Train the crew for a given number of iterations.
     """
     inputs = {
-        'from_date': str(datetime.now() - timedelta(days=10)),
-        'to_date': str(datetime.now())
+        'from_date': (datetime.now() - timedelta(days=10)).strftime("%A, %B %d, %Y"),
+        'to_date': datetime.now().strftime("%A, %B %d, %Y")
     }
     try:
-        Financialadvisor().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
+        FinancialAdvisor().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
 
     except Exception as e:
         raise Exception(f"An error occurred while training the crew: {e}")
@@ -47,7 +47,7 @@ def replay():
     Replay the crew execution from a specific task.
     """
     try:
-        Financialadvisor().crew().replay(task_id=sys.argv[1])
+        FinancialAdvisor().crew().replay(task_id=sys.argv[1])
 
     except Exception as e:
         raise Exception(f"An error occurred while replaying the crew: {e}")
@@ -62,7 +62,7 @@ def test():
     }
     
     try:
-        Financialadvisor().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
+        FinancialAdvisor().crew().test(n_iterations=int(sys.argv[1]), eval_llm=sys.argv[2], inputs=inputs)
 
     except Exception as e:
         raise Exception(f"An error occurred while testing the crew: {e}")
