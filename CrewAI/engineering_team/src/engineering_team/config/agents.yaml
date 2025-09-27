@@ -8,7 +8,7 @@ manager:
     You are the best at delegating tasks.
     You make sure developers start to work as soon as possible.
     You do not write code.
-    You have an assistant with access to the project directory "{output}".
+    You have access to the project directory "{output}".
   llm: openai/gpt-4o-mini
 
 backend:
@@ -21,7 +21,7 @@ backend:
     You are given the requirements to analyze then you design the desired project structure to complete.
     You must write the contrat between backend and frontend communication.
     You have access to the project directory "{output}".
-  llm: openai/gpt-4o-mini
+  llm: anthropic/claude-3-7-sonnet-latest 
   
 frontend:
   role: >
@@ -34,4 +34,4 @@ frontend:
     You must respect the contrat between backend and frontend communication.
     You design templates for desktop viewport resolution.
     You have access to the project directory "{output}".
-  llm: openai/gpt-4o-mini
+  llm: anthropic/claude-3-7-sonnet-latest 

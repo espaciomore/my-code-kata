@@ -5,13 +5,15 @@
 * Gameplay runs on Flask as web server (serving homepage "http//localhost:5000/" with template "index.html")
 * Application must have memory to keep the chess board state
 * Human versus Computer gameplay
-* Human can choose to play as White or Black
+* Human can choose to play as Whitor Black
 * UI display a timer for each turn
 * UI keep track of scores
 * UI track each play during the game
 * UI on the Universal Chess Interface (UCI) protocol to share information with the backend API
 * UI should communicate with the API using the FEN (Forsyth-Edwards Notation) standard to store the chessboard as JSON
 * UI must initialize the chess board through an API call then use the FEN object to render the board
+* UI highlights current piece selection
+* UI highlights squares for correct and wrong moves
 * Each chess piece must be displayed with a special symbol in ASCII character
 * Human should be able to make a move by drag and drop
 * Human should be able to make a move by clicking on the start square and then another click on the end square
@@ -35,18 +37,16 @@ Each player controls sixteen pieces :
 
 ## ASCII chars for chess pieces:
 
-- Black Rook : `&#9820`
-- Black Knight : `&#9822`
-- Black Bishop : `&#9821`
-- Black King : `&#9818`
-- Black Queen : `&#9819`
-- Black Pawn : `&#9823`
-- White Rook : `&#9814`
-- White Knight : `&#9816`
-- White Bishop : `&#9815`
-- White King : `&#9812`
-- White Queen : `&#9813`
-- White Pawn : `&#9817`
+The application can use Unicode chess symbols for piece display:
+
+| Piece  | White Symbol | Black Symbol | Unicode                   |
+| ------ | ------------ | ------------ | ------------------------- |
+| King   | (U+2654)     | (U+265A)     | `&#9812;` / `&#9818;` |
+| Queen  | (U+2655)     | (U+265B)     | `&#9813;` / `&#9819;` |
+| Rook   | (U+2656)     | (U+265C)     | `&#9814;` / `&#9820;` |
+| Bishop | (U+2657)     | (U+265D)     | `&#9815;` / `&#9821;` |
+| Knight | (U+2658)     | (U+265E)     | `&#9816;` / `&#9822;` |
+| Pawn   | (U+2659)     | (U+265F)     | `&#9817;` / `&#9823;` |
 
 ## The pieces are placed, one per square, as follows:
 
@@ -116,6 +116,56 @@ Examples:
   - with payload { "fen" :  currentFEN, "uci" : currentUCI }
   - returns JSON { "fen" : fen, "uci" : uci, "status" : "KO" }
 - The API is stateless, the backend can recreate the board with the given FEN object : `chess.Board(data['fen'])`
+
+```python
+from flask import Flask, request, jsonify, render_template
+import chess
+
+app = Flask(__name__)
+
+# Initialize a new chess board
+@app.route('/api/board/init-reset', methods=['GET'])
+def init_board():
+    board = chess.Board()
+    return jsonify({'fen': board.fen()})
+
+# Validate move
+@app.route('/api/board/validate-move', methods=['POST'])
+def validate_move():
+    data = request.get_json()
+    board = chess.Board(data['fen'])
+    move = chess.Move.from_uci(data['uci'])
+    if move in board.legal_moves:
+        return jsonify({'fen': board.fen(), 'uci': data['uci'], 'status': 'OK'})
+    return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'KO'})
+
+# Make move
+@app.route('/api/board/make-move', methods=['POST'])
+def make_move():
+    data = request.get_json()
+    board = chess.Board(data['fen'])
+    move = chess.Move.from_uci(data['uci'])
+    if move in board.legal_moves:
+        board.push(move)
+        return jsonify({'fen': board.fen(), 'uci': data['uci'], 'status': 'OK'})
+    return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'KO'})
+
+# Check for checkmate
+@app.route('/api/board/is_checkmate', methods=['POST'])
+def is_checkmate():
+    data = request.get_json()
+    board = chess.Board(data['fen'])
+    if board.is_checkmate():
+        return jsonify({'fen': board.fen(), 'status': 'OK'})
+    return jsonify({'fen': board.fen(), 'status': 'KO'})
+
+@app.route('/', methods=['GET'])
+def home():
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
 
 # Suggested Project Structure:
 
