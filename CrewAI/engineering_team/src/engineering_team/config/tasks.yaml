@@ -1,0 +1,45 @@
+backend_task:
+  agent: backend
+  description: >
+    As a backend software engineer :
+    Using yours tools (File Writer Tool, Read a file's content, List files in directory).
+    Access the output directory "{output}". 
+    Analyze the directory files.
+    Analyze the given requirements.
+    Design the desired project structure.
+    Write the contrat between backend and frontend communication.
+    Implement the server side solution using python.
+    Complete all implementation, do not leave comments or placeholders.
+    HTTP Server has to render a default template and the necessary API endpoints.
+    You are accountable for all Python script files.
+    Your root directory is the application directory.
+    Use Windows file path style for reading and saving files.
+    Use Behaviour Driven Development.
+  expected_output: >
+    An application with a comprehensive structure and all necessary files to run.
+    An application according to the requirements.
+
+frontend_task:
+  agent: frontend
+  description: >
+    As a frontend software engineer :
+    Using yours tools (File Writer Tool, Read a file's content, List files in directory).
+    Access the output directory "{output}". 
+    Analyze the directory files.
+    Use the API endpoints developed in backend_task
+    Design templates for computer desktop resolution.
+    Complete all implementation, do not leave comments or placeholders.
+    You are accountable onsible for all HTML, CSS and Javscript files.
+    Javascript events have to be defined after document is loaded.
+    Use only Javascript ES6 syntaxe.
+    Always write javascript code in js files.
+    Do not write javascript code in HTML script tags.
+    Do not return fixed values in functions.
+    Your root directory is the application directory.
+    Use Windows file path style for reading and saving files.
+    Use Behaviour Driven Development.
+  expected_output: >
+    An application with the templates connected to the backend_task development.
+    An application according to the requirements.
+  context:
+    - backend_task

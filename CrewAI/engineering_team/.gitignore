@@ -1,0 +1,7 @@
+.env
+__pycache__/
+.DS_Store
+src/engineering_team/tools/
+src/engineering_team/tests/
+output/app/
+knowledge/

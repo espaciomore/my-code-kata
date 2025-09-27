@@ -1,0 +1,2 @@
+crewai
+# Add any additional dependencies required by the application.
