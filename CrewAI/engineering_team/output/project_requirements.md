@@ -12,12 +12,13 @@
 * UI on the Universal Chess Interface (UCI) protocol to share information with the backend API
 * UI should communicate with the API using the FEN (Forsyth-Edwards Notation) standard to store the chessboard as JSON
 * UI must initialize the chess board through an API call then use the FEN object to render the board
-* Each chess piece must be displayed with a special symbol
+* Each chess piece must be displayed with a special symbol in ASCII character
 * Human should be able to make a move by drag and drop
 * Human should be able to make a move by clicking on the start square and then another click on the end square
 * Computer should be able to make a move autonomously
 * Show a playable chess board and pieces (whites and blacks) on the web Application
 * Application directory "**/output/app/"
+* Fulfilling all the requirements above is the only acceptable outcome.
 
 # About Chess Rules:
 
@@ -101,14 +102,20 @@ Examples:
 
 - GET /api/board/init-reset
   - Creates a new board and returns the FEN object
-- POST /api/board/status
+  - returns JSON { "fen" : fen }
+- POST /api/board/is_checkmate
   - with payload { "fen" :  currentFEN }
+  - returns JSON { "fen" : fen, "status" : "OK" }
 - POST /api/board/make-move
   - with payload { "fen" :  currentFEN, "uci" : currentUCI }
+  - returns JSON { "fen" : fen, "uci" : uci, "status" : "OK" }
 - POST /api/board/validate-move
   - with payload { "fen" :  currentFEN, "uci" : currentUCI }
+  - returns JSON { "fen" : fen, "uci" : uci, "status" : "KO" }
 - POST /api/board/undo
   - with payload { "fen" :  currentFEN, "uci" : currentUCI }
+  - returns JSON { "fen" : fen, "uci" : uci, "status" : "KO" }
+- The API is stateless, the backend can recreate the board with the given FEN object : `chess.Board(data['fen'])`
 
 # Suggested Project Structure:
 
@@ -126,36 +133,101 @@ output/
     templates/
       index.html
 
-# Render board with FEN object:
+# Rendering chess board with FEN object:
 
 ```javascript
+document.addEventListener('DOMContentLoaded', () => {
+    initializeBoard();
+});
+
+var data_fen = undefined;
+
+function initializeBoard() {
+    if (data_fen === undefined) {
+        fetch('/api/board/init-reset')
+            .then(response => response.json())
+            .then(data => {
+                data_fen = data.fen;
+                renderChessBoard(data.fen)
+            });
+    } else {
+        renderChessBoard(data_fen);
+    }
+}
+
 function getSquareClass(colIndex, rowIndex) {
-    return (colIndex % 2 !== 0) !== (rowIndex %2 === 0) ? 'white' : 'black';
+    return ((colIndex + rowIndex + 2) % 2 === 0) ? 'white' : 'black';
 }
 
 function renderChessBoard(fen) {
-    const chessBoard = document.getElementById('chess-board');
-    chessBoard.innerHTML = '';
-    const pieces = fen.split(' ')[0].split('/');
-    pieces.forEach((row, rowIndex) => {
-        let emptySquares = 0;
+    window.document.getElementById('chess-board').replaceChildren();  
+
+    fen.split(' ')[0].split('/').forEach((row, rowIndex) => {
+        var emptySquares = 0;
+        var busySquares = 0;
         row.split('').forEach((piece, colIndex) => {
-            if (isNaN(piece)) {
-                const squareClass = getSquareClass(rowIndex, (colIndex + emptySquares));
+            // console.log(colIndex+emptySquares)
+            if (piece.match(/[a-z]/i)) {
+                const squareClass = getSquareClass((busySquares + emptySquares), rowIndex);
                 const square = document.createElement('div');
                 square.className = `square ${squareClass}`;
                 square.textContent = piece;
-                chessBoard.appendChild(square);
+                square.dataset.position = `${String.fromCharCode(97 + busySquares + emptySquares)}${8 - rowIndex}`; 
+                square.id = Date.now() + busySquares + emptySquares + rowIndex;
+                square.addEventListener('click', handleSquareClick);
+                window.document.getElementById('chess-board').appendChild(square);
+                busySquares++;
             } else {
                 for (let i = 0; i < parseInt(piece); i++) {
-                    const squareClass = getSquareClass(rowIndex, (colIndex + emptySquares));
+                    const squareClass = getSquareClass((busySquares + emptySquares), rowIndex);
                     const square = document.createElement('div');
                     square.className = `square ${squareClass}`;
-                    chessBoard.appendChild(square);
+                    square.textContent = '';
+                    square.dataset.position = `${String.fromCharCode(97 + busySquares + emptySquares)}${8 - rowIndex}`; 
+                    square.id = Date.now() + busySquares + emptySquares + rowIndex;
+                    square.addEventListener('click', handleSquareClick);
+                    window.document.getElementById('chess-board').appendChild(square);
                     emptySquares++;
                 }
             }
         });
+    });
+}
+
+var lastClicked = undefined;
+
+function handleSquareClick(event) {
+    if (lastClicked === undefined) {
+        lastClicked = event.target;
+        return;
+    }
+  
+    const fromSquare = lastClicked.dataset.position;
+    const toSquare = event.target.dataset.position;
+
+    lastClicked = undefined;
+
+    if (fromSquare && toSquare) {
+        makeMove(fromSquare, toSquare);
+    }
+}
+
+function makeMove(from, to) {
+    fetch('/api/board/make-move', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}` })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.fen) {
+            data_fen = data.fen;
+            renderChessBoard(data.fen);
+        } else {
+            console.error('error');
+        }
     });
 }
 ```
