@@ -3,9 +3,7 @@
 //
 // Time:        Thu, Nov 14 2019 21:23:00 UTC +03:00
 //
-// Description: This is part of my studies in the development of 
-//              the Evolutionary Architecture or what is also known as the 
-//              Artificial Intelligence.
+// Description: Palindrome analysis function.
 //
 // Type Of:     Linguistic, Spatial and Logical-Mathematical Intelligence
 //
@@ -22,6 +20,8 @@
 // Tests:       > node server.js test ascii.test.dump
 //              [ [ [true/false], [f( x )] = [expected value] ] ]
 //
+// Data Schema: [{"(string) fname":{"(string) record":[(double)]}}]
+//
 this.palindrome = ( journey ) =>
 {
   let f = ( x, y ) =>
@@ -37,12 +37,12 @@ this.palindrome = ( journey ) =>
     return x > y ? d( x, y ) : d( y, x )
   }
 
-  let pv = []
+  let pv = [] // The probability of equality vector
   let space = journey.length
   let neutron = space % 2
   let nucleus = Math.floor( space / 2 )
-  let alpha = journey.substr( 0 * space, nucleus + neutron )
-  let omega = journey.substr( nucleus, space )
+  let alpha = journey.substr( 0 * space, nucleus + neutron ) // A.K.A. The Yin
+  let omega = journey.substr( nucleus, space ) // The Yan
 
   for ( let ki = 0; ki < nucleus + neutron ; ki++ )
   {

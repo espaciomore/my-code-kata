@@ -3,9 +3,7 @@
 //
 // Time:        Thu, Nov 26 2019 21:23:00 UTC +03:00
 //
-// Description: This is part of my studies in the development of 
-//              the Evolutionary Architecture or what is also known as the 
-//              Artificial Intelligence.
+// Description: Octave analysis function.
 //
 // Type Of:     Musical, Spatial and Logical-Mathematical Intelligence
 //
