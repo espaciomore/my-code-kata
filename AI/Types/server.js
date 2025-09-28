@@ -14,6 +14,8 @@
 //              Analogically, we can imagine that the universe creates palindromes.
 //              In atoms, the vibration frequencies of its electrons would create perfect octaves.
 //
+// Application: Data Transmission, Cryptography
+//
 // License(s):  GPL+3, MIT, Copyright
 //
 // Engine:      NodeJS v9.2.0
