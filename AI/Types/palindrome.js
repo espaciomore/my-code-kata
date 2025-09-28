@@ -20,7 +20,7 @@
 // Tests:       > node server.js test ascii.test.dump
 //              [ [ [true/false], [f( x )] = [expected value] ] ]
 //
-// Data Schema: [{"(string) fname":{"(string) record":[(double) arg...]}}]
+// Data Schema: [{"(string) fname":{"(string) arg":[(double) pv...]}}]
 //
 this.palindrome = ( journey ) =>
 {
