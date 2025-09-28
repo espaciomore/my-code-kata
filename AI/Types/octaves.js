@@ -20,7 +20,7 @@
 // Tests:       > node server.js test freq.test.dump
 //              [ [ [true/false], [f( x )] = [expected value] ] ]
 //
-// Data Schema: [{"(string) fname":{"(string) record":[(double) arg...]}}]
+// Data Schema: [{"(string) fname":{"(string) arg":[(double) expected-pv...]}}]
 //
 this.octaves = ( Hz ) =>
 {
