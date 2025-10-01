@@ -1,34 +1,52 @@
 body {
     font-family: Arial, sans-serif;
-    justify-content: center;
-    text-align: center;
-    margin: 0 auto;
     background-color: #f0f0f0;
 }
 
-#chess-board {
+h1 {
     text-align: center;
+}
+
+#global-clock {
+    text-align: center;
+}
+
+#chess-board {
+    justify-content: center;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    width: 400px;
-    height: 400px;
+    row-gap: 0;
+    min-width: 400px;
+    min-height: 400px;
+    max-width: 35vw;
+    max-height: 35vh;
 }
 
 .square {
-    width: 50px;
-    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    aspect-ratio: 1 / 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2em;
+    font-size: 2.5rem;
     cursor: pointer;
 }
 
+.square:hover, .selected:hover {
+    background-color: lightseagreen !important;
+}
+
+.selected {
+    border: 4px solid lightseagreen !important;
+    box-sizing: border-box;
+}
+
 .white {
-    background-color: #fff;
+    background-color: white;
 }
 
 .black {
-    background-color: #b58863;
+    background-color: darkgray;
 }

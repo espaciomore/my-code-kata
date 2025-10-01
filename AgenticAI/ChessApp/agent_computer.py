@@ -24,18 +24,19 @@ class AgentComputer():
         self.model = model
         self.tools = tools
 
-    async def make_move(self, current_fen: str) -> ChessBoard | None:
+    async def make_move(self, current_fen: str, legal_moves: str) -> ChessBoard | None:
         self.agent = Agent(
             name = self.name, 
             instructions = f"{self.instructions}\n\n" +
                 f"Chess board history: {self.chess_board_history.moves}\n\n" + 
-                f"Current chess board to pass as fen argument to validate_move tool: '{current_fen}'",
+                f"Curremt chess board (FEN): '{current_fen}'\n\n" +
+                f"List of legal moves (UCI): {legal_moves}",
             model = self.model,
             tools = self.tools,
             output_type = ChessBoard,
-            model_settings=ModelSettings(timeout=30, max_turns=30))
+            model_settings=ModelSettings(timeout=30))
 
-        result = await Runner.run(self.agent, f"Find the next best move for Blacks", max_turns=30)
+        result = await Runner.run(self.agent, f"Choose the next best move for Blacks", max_turns=30)
         
         try:
             next_move: ChessBoard = result.final_output_as(ChessBoard)

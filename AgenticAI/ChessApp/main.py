@@ -4,39 +4,48 @@ from agent_computer import AgentComputer, ChessBoard
 
 import chess
 
-
-@function_tool
-def validate_move(fen: str, uci: str) -> str:
-    """ Given the current chess board.
-        Validate a move using the python-chess library.
-        Input 'fen' is the current FEN as instructed.
-        Input 'uci' is the suggested move to validate."""
-    board = chess.Board(fen)
-    move = chess.Move.from_uci(uci)
-    
-    if move not in board.legal_moves:
-        return uci + "is an invalid move"
-    
-    return uci + "is a valid move"
-
 agent_computer = AgentComputer(
     name = "Agent Computer Chessmaster",
     instructions = """You are an avid chess master.
         You master all the rules in the game of chess.
-        You are having a match with a clever opponent or adversary.
         You understand the Universal Chess Interface (UCI) code to define moves on the board.
         You understand the Forsyth-Edwards Notation (FEN) to analyse chess board piece positions.
         Your pieces are Blacks or lowercase letters (k, q, r, b, n, p).
         You cannot move Whites or uppercase letters (K, Q, R, B, N, P).
+        You know that 'k' is for king, 'q' for queen, 'r' for rook, 'b' for bishop, 'n' for knight and 'p' for pawn. 
+
+        Example, given FEN "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1" the chess board is an 8x8 table :
+
+        r n b q k b n r
+        p p p p p p p p
+        . . . . . . . .
+        . . . . . . . .
+        . . . . . . . .
+        . . . . P . . .
+        P P P P . P P P
+        R N B Q K B N R
+
+        Columns are named with letters A-H and rows are named with numbers 8-1
+
+        Chess Piece Values (Point System) :
+        Pawn - 1 point 
+        Knight - 3 points 
+        Bishop - 3 points 
+        Rook - 5 points 
+        Queen - 9 points 
+        King - Priceless (if king dies game is over) 
+
+        You have to try to loose the least of points.
+        You have to make the most points by overtaking the most precious pieces from the adversary.
+
         You are given the history of moves with FEN and UCI.
         You provide an UCI of length 4 meaning from-to movement.
         Your goal is to win so find the next best move based on the current chess board.
-        You use the validate_move tool for your finding your next move to provide an answer ASAP.
-        You must stop at first valid response from the validate_move tool.
-        You win if your adversary is checkmated.
+        You must choose the winning UCI move from the list provided to you.
+
         Think fast and good luck!""",
     model = "gpt-4o-mini",
-    tools = [validate_move]
+    tools = []
 )
 
 app = Flask(__name__)
@@ -59,27 +68,45 @@ def validate_move():
 
     return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'KO'})
 
+@app.route('/api/board/legal-moves', methods=['POST'])
+def legal_moves():
+    data = request.get_json()
+    board = chess.Board(data['fen'])
+    legal_moves = []
+
+    for move in board.legal_moves:
+        legal_moves.append(move.uci())
+
+    return jsonify({'fen': data['fen'], 'uci': legal_moves, 'status': 'OK'})
+
 # Make move
 @app.route('/api/board/make-move', methods=['POST'])
 def make_move():
     data = request.get_json()
     board = chess.Board(data['fen'])
     move = chess.Move.from_uci(data['uci'])
+    list_legal_moves = list(map(lambda obj: obj.uci(), board.legal_moves))
 
-    if move in board.legal_moves:
-        board.push(move)
-        return jsonify({'fen': board.fen(), 'uci': data['uci'], 'status': 'OK'})
+    if len(list_legal_moves) == 0:
+        return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'CHECKMATE'})
 
-    return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'KO'})
+    board.push(move)
+    
+    return jsonify({'fen': board.fen(), 'uci': data['uci'], 'status': 'OK'})
 
 # Make move by an AI agent
 @app.route('/api/board/make-ai-move', methods=['POST'])
 async def make_ai_move():
     data = request.get_json()
     board = chess.Board(data['fen'])
-    chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'])
-    
-    if chessboard is None or len(chessboard.uci) != 4:
+    list_legal_moves = list(map(lambda obj: obj.uci(), board.legal_moves))
+
+    if len(list_legal_moves) == 0:
+        return jsonify({'fen': data['fen'], 'uci': '', 'status': 'CHECKMATE'})
+
+    chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(list_legal_moves))
+
+    if chessboard is None or len(chessboard.uci) != 4 or chessboard.uci not in list_legal_moves:
         return jsonify({'fen': data['fen'], 'uci': '', 'status': 'KO'})
 
     move = chess.Move.from_uci(chessboard.uci)
@@ -93,6 +120,15 @@ def is_checkmate():
     data = request.get_json()
     board = chess.Board(data['fen'])
     if board.is_checkmate():
+        return jsonify({'fen': board.fen(), 'status': 'OK'})
+    return jsonify({'fen': board.fen(), 'status': 'KO'})
+
+# Check if check
+@app.route('/api/board/king_in_check', methods=['POST'])
+def king_in_check():
+    data = request.get_json()
+    board = chess.Board(data['fen'])
+    if board.is_check():
         return jsonify({'fen': board.fen(), 'status': 'OK'})
     return jsonify({'fen': board.fen(), 'status': 'KO'})
 

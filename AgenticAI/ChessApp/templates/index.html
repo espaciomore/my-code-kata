@@ -9,6 +9,40 @@
 </head>
 <body>
     <h1>Chess Game</h1>
-    <div id="chess-board"></div>
+    <div id="global-clock">
+        <button id="clock-control">00 : 00 : 00</button>
+    </div>
+    <div>&nbsp;</div>
+    <div class="board-and-scores">
+        <div id="player-white" class="score">
+            <div class="pw-clock"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="pw-name"></th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td class="move"></td>
+                    <td class="time"></td>
+                </tr>
+            </table>
+        </div>
+        <div id="chess-board"></div>
+        <div id="player-black" class="score">
+            <div class="pw-clock"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="pw-name"></th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td class="move"></td>
+                    <td class="time"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
