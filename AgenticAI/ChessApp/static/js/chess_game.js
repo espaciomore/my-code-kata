@@ -1,7 +1,3 @@
-document.addEventListener('DOMContentLoaded', () => {
-    initializeBoard()
-});
-
 const piece_meta_map = new Map([
     ['K', {unicode: '\u{2654}', class: 'white', name: 'king'}],
     ['k', {unicode: '\u{265A}', class: 'black', name: 'king'}],
@@ -16,16 +12,42 @@ const piece_meta_map = new Map([
     ['P', {unicode: '\u{2659}', class: 'white', name: 'pawn'}],
     ['p', {unicode: '\u{265F}', class: 'black', name: 'pawn'}]
 ]);
-let dead_pieces = [];
+const first_place_metal = '\u{1F947}'
 let human_team = 'white'
 let data_fen = undefined
+let data_score = undefined
+let data_uci = undefined
 let selected_piece = undefined
 let global_clock_interval_id = undefined
 let move_call_in_progress = false
 let match_ended = false
 
-   
-function updateGlobalClock() {
+
+document.addEventListener('DOMContentLoaded', () => {
+    resetBoard();
+});
+
+function getCurrentFen() {
+    return data_fen
+}
+
+function getLastMove() {
+    return data_uci
+}
+
+function getLastScore() {
+    return data_score
+}
+
+function getCurrentTime() {
+    return document.getElementById('clock-control').textContent
+}
+
+function stopTime() {
+    document.getElementById('clock-control').classList.add('stopped')
+}
+
+function updateTime() {
     global_clock = document.getElementById('clock-control')
 
     let date = new Date()
@@ -42,7 +64,7 @@ function updateGlobalClock() {
     global_clock.textContent = `${hours} : ${minutes} : ${seconds}`
 }
 
-function initializeBoard() {
+function resetBoard() {
     if (data_fen === undefined) {
         fetch('/api/board/init-reset')
             .then(response => response.json())
@@ -96,6 +118,32 @@ function renderChessBoard(fen) {
     });
 }
 
+function registerMove(table_id, fen, uci, time, score) {
+    let new_entry = document.createElement("tr")
+    new_entry.dataset.fen = fen
+
+    let td_move = document.createElement("td")
+    td_move.classList.add("move")
+    td_move.textContent = uci
+    new_entry.appendChild(td_move)
+
+    let td_time = document.createElement("td")
+    td_time.classList.add("time")
+    td_time.textContent = time
+    new_entry.appendChild(td_time)
+
+    let td_score = document.createElement("td")
+    td_score.classList.add("score")
+    td_score.textContent = score
+    new_entry.appendChild(td_score)
+
+    document.getElementById(table_id).prepend(new_entry)
+}
+
+function setWinner(name_id) {
+    document.getElementById(name_id).textContent += ` ${first_place_metal}`
+}
+
 function handleSquareClick(event) {
     if (move_call_in_progress || match_ended) return
     if (event.target.className.includes("selected")) { 
@@ -111,7 +159,7 @@ function handleSquareClick(event) {
             
             if (global_clock_interval_id === undefined && data_fen.endsWith('0 1')) {
 
-                global_clock_interval_id = setInterval(updateGlobalClock, 1000)
+                global_clock_interval_id = setInterval(updateTime, 1000)
             }
         }
 
@@ -127,15 +175,25 @@ function handleSquareClick(event) {
     if (fromSquare && toSquare) {
         validateMove(fromSquare, toSquare, () => {
             makeMove(fromSquare, toSquare, () =>  {
+                registerMove("player-white-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
                 selected_piece.classList.remove("selected")
                 selected_piece = undefined
-                makeMove('', '', () => {}) // Move by AI agent
+                // Move by AI agent
+                makeMove('', '', () => {
+                    registerMove("player-black-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
+                }, () => {
+                    stopTime()
+                    setWinner("player-white-name")
+                })
+            }, () => {
+                stopTime()
+                setWinner("player-black-name")
             })
-        })
+        }, () => {})
     }
 }
 
-function validateMove(from, to, callbackOK, callbackKO) {
+function validateMove(from, to, ok, ko) {
     move_call_in_progress = true;
     api_url = '/api/board/validate-move'
     fetch(api_url, {
@@ -150,9 +208,9 @@ function validateMove(from, to, callbackOK, callbackKO) {
         return response.json()
     }).then(data => {
         if (data.fen && data.status === 'OK') {
-            if (callbackOK) callbackOK()
+            if (ok) ok()
         } else if (data.fen && data.status === 'KO') {
-            if (callbackOK) callbackKO()
+            if (ok) ko()
         } else {
             throw data
         }
@@ -167,7 +225,7 @@ function validateMove(from, to, callbackOK, callbackKO) {
     });
 }
 
-function makeMove(from, to, callback) {
+function makeMove(from, to, ok, checkmate) {
     move_call_in_progress = true;
     api_url = '/api/board/' + (from && to ? 'make-move':'make-ai-move')
     fetch(api_url, {
@@ -182,14 +240,17 @@ function makeMove(from, to, callback) {
         return response.json()
     }).then(data => {
         if (data.fen && data.status === 'OK') {
-            data_fen = data.fen;
+            data_fen = data.fen
+            data_uci = data.uci
+            data_score = data.score
             renderChessBoard(data.fen)
-            if (callback) callback()
+            if (ok) ok()
         } else if (data.fen && data.status === 'CHECKMATE') {
             // Match has succesfully ended
             clearInterval(global_clock_interval_id)
             global_clock_interval_id = undefined
-            match_ended = true
+            match_ended = true        
+            if (checkmate) checkmate()    
         } else {
             throw data
         }

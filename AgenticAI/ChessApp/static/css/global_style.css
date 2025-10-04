@@ -1,6 +1,9 @@
+html {
+    background-color: white;
+}
+
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
 }
 
 h1 {
@@ -21,6 +24,42 @@ h1 {
     min-height: 400px;
     max-width: 35vw;
     max-height: 35vh;
+}
+
+.player-name {
+    font-weight: bold;
+}
+
+div.board-and-scores {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+}
+
+div.board-and-scores table {
+    display: block;
+    overflow: auto;
+    min-height: 380px;
+    max-height: 30vh;
+}
+
+div.board-and-scores table tr {
+    white-space: nowrap;
+    font-size: small;    
+}
+
+td.move {
+    width: 4ch;
+}
+
+td.time {
+    width: 12ch;
+    white-space: nowrap;
+}
+
+td.score {
+    width: 2ch;
 }
 
 .square {
@@ -49,4 +88,9 @@ h1 {
 
 .black {
     background-color: darkgray;
+}
+
+.stopped {
+    background-color: black;
+    color: white;
 }
