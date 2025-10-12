@@ -1,3 +1,5 @@
+import { renderLastMove } from "./move_rendering.js";
+
 const piece_meta_map = new Map([
     ['K', {unicode: '\u{2654}', class: 'white', name: 'king'}],
     ['k', {unicode: '\u{265A}', class: 'black', name: 'king'}],
@@ -12,7 +14,7 @@ const piece_meta_map = new Map([
     ['P', {unicode: '\u{2659}', class: 'white', name: 'pawn'}],
     ['p', {unicode: '\u{265F}', class: 'black', name: 'pawn'}]
 ]);
-const first_place_metal = '\u{1F947}'
+const first_place_medal = '\u{1F947}'
 let human_team = 'white'
 let data_fen = undefined
 let data_score = undefined
@@ -48,7 +50,7 @@ function stopTime() {
 }
 
 function updateTime() {
-    global_clock = document.getElementById('clock-control')
+    const global_clock = document.getElementById('clock-control')
 
     let date = new Date()
     let [hours, minutes, seconds] = global_clock.textContent.split(':')
@@ -81,7 +83,7 @@ function getSquareClass(colIndex, rowIndex) {
     return ((colIndex + rowIndex + 1) % 2 === 0) ? 'black' : 'white'
 }
 
-function renderChessBoard(fen) {
+function renderChessBoard(fen, callback) {
     const chessBoard = document.getElementById('chess-board')
     chessBoard.replaceChildren()
 
@@ -92,12 +94,14 @@ function renderChessBoard(fen) {
             if (piece.match(/[a-z]/i)) {
                 const squareClass = getSquareClass((busySquares + emptySquares), rowIndex)
                 const square = document.createElement('div')
-                piece_meta = piece_meta_map.get(piece)
+                const positionId = `${String.fromCharCode(97 + busySquares + emptySquares)}${8 - rowIndex}`
+                const piece_meta = piece_meta_map.get(piece)
                 square.className = `square ${squareClass} ${piece_meta.class}-${piece_meta.name}`
                 square.textContent = piece_meta.unicode
-                square.dataset.position = `${String.fromCharCode(97 + busySquares + emptySquares)}${8 - rowIndex}`
+                square.dataset.position = positionId
                 square.dataset.team = piece_meta.class
-                square.id = `${Date.now()}${busySquares}${emptySquares}${rowIndex}`
+                square.dataset.name = piece_meta.name
+                square.id = positionId
                 square.addEventListener('click', handleSquareClick)
                 chessBoard.appendChild(square)
                 busySquares++
@@ -105,10 +109,11 @@ function renderChessBoard(fen) {
                 for (let i = 0; i < parseInt(piece); i++) {
                     const squareClass = getSquareClass((busySquares + emptySquares), rowIndex)
                     const square = document.createElement('div')
+                    const positionId = `${String.fromCharCode(97 + busySquares + emptySquares)}${8 - rowIndex}`
                     square.className = `square ${squareClass} free`
                     square.textContent = ''
-                    square.dataset.position = `${String.fromCharCode(97 + busySquares + emptySquares)}${8 - rowIndex}`
-                    square.id = `${Date.now()}${busySquares}${emptySquares}${rowIndex}`
+                    square.dataset.position = positionId
+                    square.id = positionId
                     square.addEventListener('click', handleSquareClick)
                     chessBoard.appendChild(square)
                     emptySquares++
@@ -116,6 +121,8 @@ function renderChessBoard(fen) {
             }
         });
     });
+
+    if (callback) callback()
 }
 
 function registerMove(table_id, fen, uci, time, score) {
@@ -141,7 +148,7 @@ function registerMove(table_id, fen, uci, time, score) {
 }
 
 function setWinner(name_id) {
-    document.getElementById(name_id).textContent += ` ${first_place_metal}`
+    document.getElementById(name_id).textContent += ` ${first_place_medal}`
 }
 
 function handleSquareClick(event) {
@@ -195,7 +202,7 @@ function handleSquareClick(event) {
 
 function validateMove(from, to, ok, ko) {
     move_call_in_progress = true;
-    api_url = '/api/board/validate-move'
+    const api_url = '/api/board/validate-move'
     fetch(api_url, {
         method: 'POST',
         headers: {
@@ -227,7 +234,7 @@ function validateMove(from, to, ok, ko) {
 
 function makeMove(from, to, ok, checkmate) {
     move_call_in_progress = true;
-    api_url = '/api/board/' + (from && to ? 'make-move':'make-ai-move')
+    const api_url = '/api/board/' + (from && to ? 'make-move':'make-ai-move')
     fetch(api_url, {
         method: 'POST',
         headers: {
@@ -244,6 +251,7 @@ function makeMove(from, to, ok, checkmate) {
             data_uci = data.uci
             data_score = data.score
             renderChessBoard(data.fen)
+            renderLastMove(data.uci)
             if (ok) ok()
         } else if (data.fen && data.status === 'CHECKMATE') {
             // Match has succesfully ended
