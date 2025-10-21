@@ -15,7 +15,10 @@ const piece_meta_map = new Map([
     ['p', {unicode: '\u{265F}', class: 'black', name: 'pawn'}]
 ]);
 const first_place_medal = '\u{1F947}'
+const thumbs_up = '\u{1F592}'
+const thumbs_down = '\u{1F593}'
 let human_team = 'white'
+let prev_fen = undefined
 let data_fen = undefined
 let data_score = undefined
 let data_uci = undefined
@@ -27,7 +30,38 @@ let match_ended = false
 
 document.addEventListener('DOMContentLoaded', () => {
     resetBoard();
+    initializeSocialButtons();
 });
+
+function initializeSocialButtons() {
+    const dislikeButton = document.getElementById('dislike-button')
+    dislikeButton.textContent = thumbs_down
+    dislikeButton.addEventListener('click', () => {
+        if (prev_fen) {
+            fetch('/api/board/dislike-move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fen: prev_fen, uci: data_uci })
+            })
+        }
+    })
+
+    const likeButton = document.getElementById('like-button')
+    likeButton.textContent = thumbs_up
+    likeButton.addEventListener('click', () => {
+        if (prev_fen) {
+            fetch('/api/board/like-move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ fen: prev_fen, uci: data_uci })
+            })
+        }
+    })
+}
 
 function getCurrentFen() {
     return data_fen
@@ -247,6 +281,7 @@ function makeMove(from, to, ok, checkmate) {
         return response.json()
     }).then(data => {
         if (data.fen && data.status === 'OK') {
+            prev_fen = data_fen
             data_fen = data.fen
             data_uci = data.uci
             data_score = data.score

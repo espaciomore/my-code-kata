@@ -80,13 +80,20 @@ td.score {
     cursor: pointer;
 }
 
-.square:hover, .selected:hover {
-    background-color: lightseagreen !important;
+.square.white:hover, .selected.white {
+    transform: scale(1.1);
+    border: none !important;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 1.0);
+}
+
+.square.black:hover, .selected.black {
+    transform: scale(1.05);
+    border: none !important;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 1.0);
 }
 
 .selected {
-    border: 2px solid lightseagreen !important;
-    box-sizing: border-box;
+    border: 1px solid rgba(0, 0, 0, 0.8);
 }
 
 .white {
@@ -111,4 +118,24 @@ td.score {
 .last-move {
     border: 2px solid rgba(105, 105, 105, 0.9) !important;
     box-sizing: border-box;
+}
+
+#social-buttons {
+    text-align: center;
+    button {
+        border: none;
+        outline: none;
+        background-color: transparent;
+        width: 60px;
+        height: 60px;
+        font-size: 3rem;
+        cursor: pointer;
+        transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    }
+    button:active {
+        transform: scale(1.25);
+    }
+    button:hover {
+        transform: scale(1.15);
+    }
 }

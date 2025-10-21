@@ -12,13 +12,11 @@ agent_computer = AgentComputer(
         You understand the Universal Chess Interface (UCI) code to define moves on the board.
         You understand the Forsyth-Edwards Notation (FEN) to analyse chess board piece positions.
 
-        Example:
-        Board (FEN) before is "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".
-        Move (UCI) to be made is "d2d3" or moving a white (w) pawn 'P' from position 'd2' to 'd3'.
-        Board (FEN) after is "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1".
+        White pieces are uppercase letters (K, Q, R, B, N, P).
+        Black pieces are lowercase letters (k, q, r, b, n, p).
 
-        Your pieces are Blacks, lowercase letters (k, q, r, b, n, p).
-        You cannot move Whites, uppercase letters (K, Q, R, B, N, P).
+        Your pieces are Blacks.
+        You cannot move Whites.
         You know that 'k' is for king, 'q' for queen, 'r' for rook, 'b' for bishop, 'n' for knight and 'p' for pawn. 
 
         Chess Piece Values (Point System) :
@@ -28,6 +26,11 @@ agent_computer = AgentComputer(
         1 Rook - 5 points 
         1 Queen - 9 points 
         1 King - 0 points (in fact, if king dies game is over) 
+
+        Examples:
+        - Board (FEN) before is "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1" where number 8 equals the number of empty squares
+        - Move (UCI) to be made is "d2d3" which means moving a white (w) pawn (P) from position 'd2' to 'd3'.
+        - Board (FEN) after is "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1" where 4P3 equals 4 empty squares followed by 1 white pawn (P) and 3 empty squares.
 
         You have to try to loose the least of points.
         You have to make the most points by overtaking the most precious pieces from the adversary.
@@ -60,6 +63,13 @@ def calculate_material_score(board, color):
         score += len(board.pieces(piece_type, color)) * piece_values[piece_type]
 
     return 39 - score
+
+def give_appreciation(data: dict, appreciation: str):
+    board = chess.Board(data['fen'])
+    color = chess.WHITE if 'w' in data['fen'] else chess.BLACK
+    score = calculate_material_score(board, color)
+    agent_computer.update_last_move(data['fen'], data['uci'], score, appreciation)
+
 
 # Initialize a new chess board
 @app.route('/api/board/init-reset', methods=['GET'])
@@ -119,8 +129,11 @@ async def make_ai_move():
 
     shuffled_legal_moves = list_legal_moves.copy()
     random.shuffle(shuffled_legal_moves)
+
+    actual_score = calculate_material_score(board, chess.WHITE)
+    moves_with_scores = list(map(lambda obj: [obj, actual_score - calculate_material_score(board, chess.WHITE)], shuffled_legal_moves))
     
-    chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(shuffled_legal_moves))
+    chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(moves_with_scores))
 
     if chessboard is None or len(chessboard.uci) != 4 or chessboard.uci not in list_legal_moves:
         return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.WHITE), 'status': 'KO'})
@@ -155,6 +168,22 @@ def king_in_check():
         return jsonify({'fen': board.fen(), 'status': 'OK'})
 
     return jsonify({'fen': board.fen(), 'status': 'KO'})
+
+# Like move
+@app.route('/api/board/like-move', methods=['POST'])
+def like_move():
+    data = request.get_json()
+    give_appreciation(data, 'like')
+
+    return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'OK'})
+
+# Dislike move
+@app.route('/api/board/dislike-move', methods=['POST'])
+def dislike_move():
+    data = request.get_json()
+    give_appreciation(data, 'dislike')
+
+    return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'OK'})
 
 @app.route('/', methods=['GET'])
 def home():
