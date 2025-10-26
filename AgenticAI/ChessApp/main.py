@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, render_template
-from agents import function_tool
 from agent_computer import AgentComputer, ChessBoard
 
 import chess
@@ -87,12 +86,11 @@ def calculate_material_score(board, color):
 
 def configure_agent_computer(agent_id: str):
     """Configure the agent computer with the specified agent's API settings."""
-    agent_data = next(agent for agent in agent_list if agent.get('id') == agent_id)
-    agent_api_key = agent_data.get('api_key')
-    agent_api_url = agent_data.get('api_url')
+    agent_data = next(agent for agent in agent_list if agent.get('id') == int(agent_id))
     
-    agent_computer.api_key = agent_api_key
-    agent_computer.base_url = agent_api_url
+    agent_computer.model = agent_data.get('model')
+    agent_computer.api_key = agent_data.get('api_key')
+    agent_computer.base_url = agent_data.get('api_url')
 
 def give_appreciation(data: dict, appreciation: str):
     board = chess.Board(data['fen'])

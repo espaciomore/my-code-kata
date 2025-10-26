@@ -1,6 +1,6 @@
 from typing import Any
 from pydantic import BaseModel, Field
-from agents import Agent, Runner, ModelSettings, set_default_openai_client, set_tracing_disabled
+from agents import Agent, Runner, ModelSettings, OpenAIChatCompletionsModel
 from openai import AsyncOpenAI
 
 
@@ -45,13 +45,10 @@ class AgentComputer():
 
     async def make_move(self, current_fen: str, legal_moves: str) -> ChessBoard | None:
         # Set up the OpenAI client with custom API key and base URL
-        external_client = AsyncOpenAI(
-            base_url=self.base_url,
-            api_key=self.api_key
+        custom_model = OpenAIChatCompletionsModel(
+            model=self.model,
+            openai_client=AsyncOpenAI(base_url=self.base_url, api_key=self.api_key)
         )
-        
-        set_default_openai_client(external_client)
-        set_tracing_disabled(True)
 
         self.agent = Agent(
             name = self.name, 
@@ -59,7 +56,7 @@ class AgentComputer():
                 f"Chess board history: \n{',\n'.join(str(self.chess_board_history))}\n\n" + 
                 f"Curremt chess board (FEN): \n'{current_fen}'\n\n" +
                 f"List of legal moves (UCI) and their scores: \n{legal_moves}",
-            model = self.model,
+            model = custom_model,
             tools = self.tools,
             output_type = ChessBoard,
             model_settings=ModelSettings(timeout=30))
