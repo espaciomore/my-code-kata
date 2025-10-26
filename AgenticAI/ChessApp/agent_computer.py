@@ -8,7 +8,7 @@ class ChessBoard(BaseModel):
     fen : str = Field(description="Chess positions based on the Forsyth-Edwards Notation (FEN) standard")
     uci : str = Field(description="Chess move based on the Universal Chess Interface (UCI) standard")
     score : int = Field(description="Score based on the current state of the chess board")
-    appreciation : str = Field(description="Appreciation given by the human player to the move (like or dislike)")
+    appreciation : str = Field(description="Appreciation given by the human player to the move ('like' or 'dislike')")
 
     def __str__(self) -> str:
         return f"ChessBoard: fen={self.fen}, uci={self.uci}, score={self.score}, appreciation={self.appreciation}"

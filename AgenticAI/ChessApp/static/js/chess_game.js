@@ -57,7 +57,6 @@ let selected_piece = undefined
 let global_clock_interval_id = undefined
 let move_call_in_progress = false
 let match_ended = false
-let drag_drop_successful = false
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -318,14 +317,7 @@ function executeMove(fromElement, toElement, onValidationSuccess) {
     }
 }
 
-function handleSquareClick(event) {
-    // Skip click handling if we just finished a drag operation
-    // or if a drag-drop operation was just completed
-    if (!drag_drop_successful) {
-        drag_drop_successful = false
-        return
-    }
-    
+function handleSquareClick(event) {    
     if (move_call_in_progress || match_ended) return
     
     if (event.target.className.includes("selected")) { 
@@ -374,7 +366,6 @@ function handleDragStart(event) {
     
     // Only allow dragging pieces that belong to the human player
     if (human_team && event.target.className.includes(human_team)) {
-        drag_drop_successful = false
         event.target.classList.add('dragging')
         event.dataTransfer.effectAllowed = 'move'
         event.dataTransfer.setData('text/plain', event.target.dataset.position)
@@ -442,9 +433,7 @@ function handleDrop(event) {
     
     // Reuse the executeMove function from handleSquareClick
     // Mark that we successfully completed a drag and drop operation after validation succeeds
-    executeMove(fromSquare, event.target, () => {
-        drag_drop_successful = true
-    })
+    executeMove(fromSquare, event.target, () => {})
 }
 
 function validateMove(from, to, ok, ko) {
