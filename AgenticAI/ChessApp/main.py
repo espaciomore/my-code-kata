@@ -4,6 +4,22 @@ from agent_computer import AgentComputer, ChessBoard
 
 import chess
 import random
+import json
+import os
+
+with open('resources/agent_list.json') as f:
+    agent_list = json.load(f)
+
+# Set OPENAI_API_KEY environment variable to avoid trace export warning
+if not os.getenv('OPENAI_API_KEY') and agent_list:
+    os.environ['OPENAI_API_KEY'] = agent_list[0].get('api_key', '')
+
+if not agent_list:
+    raise "No agent available was found during loading"
+
+agent_model = agent_list[0].get('model')
+agent_api_key = agent_list[0].get('api_key')
+agent_api_url = agent_list[0].get('api_url')
 
 agent_computer = AgentComputer(
     name = "Agent Computer Chessmaster",
@@ -41,11 +57,16 @@ agent_computer = AgentComputer(
         You must choose the winning UCI move from the list provided to you.
 
         Think fast and good luck!""",
-    model = "gpt-4o-mini",
-    tools = []
+    tools = [],
+    model = agent_model,
+    api_key = agent_api_key,
+    base_url = agent_api_url
 )
 
 app = Flask(__name__)
+
+# Configure Flask for async support
+app.config['ASYNC_MODE'] = True
 
 def calculate_material_score(board, color):
     piece_values = {
@@ -63,6 +84,15 @@ def calculate_material_score(board, color):
         score += len(board.pieces(piece_type, color)) * piece_values[piece_type]
 
     return 39 - score
+
+def configure_agent_computer(agent_id: str):
+    """Configure the agent computer with the specified agent's API settings."""
+    agent_data = next(agent for agent in agent_list if agent.get('id') == agent_id)
+    agent_api_key = agent_data.get('api_key')
+    agent_api_url = agent_data.get('api_url')
+    
+    agent_computer.api_key = agent_api_key
+    agent_computer.base_url = agent_api_url
 
 def give_appreciation(data: dict, appreciation: str):
     board = chess.Board(data['fen'])
@@ -113,6 +143,7 @@ def make_move():
 
     board.push(move)
     score = calculate_material_score(board, chess.BLACK)
+
     agent_computer.update_history(data['fen'], move.uci(), score)
     
     return jsonify({'fen': board.fen(), 'uci': data['uci'], 'score': score, 'status': 'OK'})
@@ -133,6 +164,8 @@ async def make_ai_move():
     actual_score = calculate_material_score(board, chess.WHITE)
     moves_with_scores = list(map(lambda obj: [obj, actual_score - calculate_material_score(board, chess.WHITE)], shuffled_legal_moves))
     
+    configure_agent_computer(data['agent']['id'])
+
     chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(moves_with_scores))
 
     if chessboard is None or len(chessboard.uci) != 4 or chessboard.uci not in list_legal_moves:
@@ -188,6 +221,12 @@ def dislike_move():
 @app.route('/', methods=['GET'])
 def home():
     return render_template('index.html')
+
+@app.route('/api/agents', methods=['GET'])
+def get_agents():
+    # Return only id, name, and model for each agent
+    agents = [{"id": agent.get('id'), "name": agent.get('name'), "model": agent.get('model')} for agent in agent_list]
+    return jsonify(agents)
 
 if __name__ == '__main__':
     app.run(debug=True)

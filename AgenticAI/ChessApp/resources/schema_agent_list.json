@@ -1,0 +1,40 @@
+{
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "integer",
+                "description": "Unique identifier for the agent"
+            },
+            "type": {
+                "type": "string",
+                "enum": ["SYSTEM", "USER"],
+                "description": "Type of agent - either SYSTEM or USER"
+            },
+            "name": {
+                "type": "string",
+                "description": "Display name of the agent"
+            },
+            "description": {
+                "type": "string",
+                "description": "Description of the agent's capabilities"
+            },
+            "model": {
+                "type": "string",
+                "description": "Model identifier used by the agent"
+            },
+            "api_url": {
+                "type": "string",
+                "format": "uri",
+                "description": "API endpoint URL for the agent"
+            },
+            "api_key": {
+                "type": "string",
+                "description": "API key for authentication"
+            }
+        },
+        "required": ["id", "type", "name", "description", "model", "api_url", "api_key"],
+        "additionalProperties": false
+    }
+}

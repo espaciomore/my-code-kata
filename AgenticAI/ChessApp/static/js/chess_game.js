@@ -1,5 +1,35 @@
 import { renderLastMove } from "./move_rendering.js";
 
+// Mobile Navigation Menu Toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenu = document.getElementById('mobile-menu');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    if (mobileMenu && navMenu) {
+        mobileMenu.addEventListener('click', function() {
+            mobileMenu.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+        
+        // Close mobile menu when clicking on a nav link
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.remove('active');
+                navMenu.classList.remove('active');
+            });
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !navMenu.contains(e.target)) {
+                mobileMenu.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+    }
+});
+
 const piece_meta_map = new Map([
     ['K', {unicode: '\u{2654}', class: 'white', name: 'king'}],
     ['k', {unicode: '\u{265A}', class: 'black', name: 'king'}],
@@ -17,6 +47,7 @@ const piece_meta_map = new Map([
 const first_place_medal = '\u{1F947}'
 const thumbs_up = '\u{1F592}'
 const thumbs_down = '\u{1F593}'
+let agent_data = undefined
 let human_team = 'white'
 let prev_fen = undefined
 let data_fen = undefined
@@ -29,7 +60,8 @@ let match_ended = false
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    resetBoard();
+    initializeAgentDropdown();
+    initializeChessBoard();
     initializeSocialButtons();
 });
 
@@ -61,6 +93,63 @@ function initializeSocialButtons() {
             })
         }
     })
+}
+
+function initializeAgentDropdown() {
+    const agent_select = document.getElementById('agent-select')
+    const black_player_name = document.getElementById('player-black-name')
+    
+    // Load agents from JSON file
+    fetch('/api/agents')
+        .then(response => response.json())
+        .then(agents => {
+            // Clear existing options
+            agent_select.innerHTML = ''
+            
+            // Add each agent as an option
+            agents.forEach((agent, index) => {
+                const option = document.createElement('option');
+                
+                if (agent_data === undefined) {
+                    agent_data = {
+                        id: agent.id,
+                        name: agent.name,
+                        model: agent.model
+                    };
+
+                    black_player_name.textContent = agent_data.name;
+                    option.selected = true;
+                }
+                
+                option.value = agent.id;
+                option.textContent = agent.name;
+                option.dataset.model = agent.model;
+                
+                agent_select.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading agents:', error);
+            // Fallback: add a default agent option
+            const option = document.createElement('option');
+            option.value = 'default';
+            option.textContent = 'Default Agent';
+            agent_select.appendChild(option);
+        });
+    
+    // Handle agent selection
+    agent_select.addEventListener('change', function() {
+        const selected_option = this.options[this.selectedIndex];
+        if (selected_option.value) {
+            agent_data = {
+                id: selected_option.value,
+                name: selected_option.textContent,
+                model: selected_option.dataset.model
+            };
+            
+            black_player_name.textContent = agent_data.name;
+        }
+    });
 }
 
 function getCurrentFen() {
@@ -100,7 +189,7 @@ function updateTime() {
     global_clock.textContent = `${hours} : ${minutes} : ${seconds}`
 }
 
-function resetBoard() {
+function initializeChessBoard() {
     if (data_fen === undefined) {
         fetch('/api/board/init-reset')
             .then(response => response.json())
@@ -199,8 +288,13 @@ function handleSquareClick(event) {
             selected_piece.classList.add("selected")
             
             if (global_clock_interval_id === undefined && data_fen.endsWith('0 1')) {
-
                 global_clock_interval_id = setInterval(updateTime, 1000)
+                
+                // Disable agent selection once the game starts
+                const agent_select = document.getElementById('agent-select')
+                if (agent_select) {
+                    agent_select.disabled = true
+                }
             }
         }
 
@@ -274,7 +368,7 @@ function makeMove(from, to, ok, checkmate) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}` })
+        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}`, agent: agent_data })
     }).then(response => {
         if (!response.ok) throw `${response.url} ${response.status} ${response.statusText}`
         
