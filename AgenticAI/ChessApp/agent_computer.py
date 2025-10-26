@@ -3,12 +3,14 @@ from pydantic import BaseModel, Field
 from agents import Agent, Runner, ModelSettings, OpenAIChatCompletionsModel
 from openai import AsyncOpenAI
 
+import re
+import json
 
 class ChessBoard(BaseModel):
     fen : str = Field(description="Chess positions based on the Forsyth-Edwards Notation (FEN) standard")
     uci : str = Field(description="Chess move based on the Universal Chess Interface (UCI) standard")
-    score : int = Field(description="Score based on the current state of the chess board")
-    appreciation : str = Field(description="Appreciation given by the human player to the move ('like' or 'dislike')")
+    score : int | None = Field(description="Score based on the current state of the chess board")
+    appreciation : str | None = Field(description="Appreciation given by the human player to the move ('like' or 'dislike')")
 
     def __str__(self) -> str:
         return f"ChessBoard: fen={self.fen}, uci={self.uci}, score={self.score}, appreciation={self.appreciation}"
@@ -58,13 +60,20 @@ class AgentComputer():
                 f"List of legal moves (UCI) and their scores: \n{legal_moves}",
             model = custom_model,
             tools = self.tools,
-            output_type = ChessBoard,
+            # output_type = ,
             model_settings=ModelSettings(timeout=30))
 
-        result = await Runner.run(self.agent, f"Choose the next best move for Blacks", max_turns=30)
+        user_prompt = "Choose the next best move for Blacks and then provide the valid JSON like {\"uci\": \"a2a3\"} as the final answer."
+
+        result = await Runner.run(self.agent, user_prompt, max_turns=30)
         
         try:
-            return result.final_output_as(ChessBoard)
-        except Exception:
+            # Parse the response because some agents responds with text that is not just a JSON object
+            data_json : str = re.search(r"(\{.*\})", result.final_output).group()
+            data_uci : str = json.loads(data_json)["uci"]
+            
+            return ChessBoard(fen=current_fen, uci=data_uci, score=None, appreciation=None)
+        except Exception as ex:
+            print(ex)
             print('agent result processing error')
             return None
