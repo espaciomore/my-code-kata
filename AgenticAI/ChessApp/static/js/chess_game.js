@@ -57,6 +57,7 @@ let selected_piece = undefined
 let global_clock_interval_id = undefined
 let move_call_in_progress = false
 let match_ended = false
+let drag_drop_successful = false
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -225,7 +226,14 @@ function renderChessBoard(fen, callback) {
                 square.dataset.team = piece_meta.class
                 square.dataset.name = piece_meta.name
                 square.id = positionId
+                square.draggable = true
                 square.addEventListener('click', handleSquareClick)
+                square.addEventListener('dragstart', handleDragStart)
+                square.addEventListener('dragend', handleDragEnd)
+                square.addEventListener('dragover', handleDragOver)
+                square.addEventListener('drop', handleDrop)
+                square.addEventListener('dragenter', handleDragEnter)
+                square.addEventListener('dragleave', handleDragLeave)
                 chessBoard.appendChild(square)
                 busySquares++
             } else {
@@ -238,6 +246,10 @@ function renderChessBoard(fen, callback) {
                     square.dataset.position = positionId
                     square.id = positionId
                     square.addEventListener('click', handleSquareClick)
+                    square.addEventListener('dragover', handleDragOver)
+                    square.addEventListener('drop', handleDrop)
+                    square.addEventListener('dragenter', handleDragEnter)
+                    square.addEventListener('dragleave', handleDragLeave)
                     chessBoard.appendChild(square)
                     emptySquares++
                 }
@@ -274,8 +286,48 @@ function setWinner(name_id) {
     document.getElementById(name_id).textContent += ` ${first_place_medal}`
 }
 
+function executeMove(fromElement, toElement, onValidationSuccess) {
+    const fromSquare = fromElement.dataset.position
+    const toSquare = toElement.dataset.position
+
+    if (fromSquare && toSquare) {
+        validateMove(fromSquare, toSquare, () => {
+            // Call the optional callback when validation succeeds
+            if (onValidationSuccess) {
+                onValidationSuccess()
+            }
+            
+            makeMove(fromSquare, toSquare, () =>  {
+                registerMove("player-white-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
+                if (selected_piece) {
+                    selected_piece.classList.remove("selected")
+                    selected_piece = undefined
+                }
+                // Move by AI agent
+                makeMove('', '', () => {
+                    registerMove("player-black-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
+                }, () => {
+                    stopTime()
+                    setWinner("player-white-name")
+                })
+            }, () => {
+                stopTime()
+                setWinner("player-black-name")
+            })
+        }, () => {})
+    }
+}
+
 function handleSquareClick(event) {
+    // Skip click handling if we just finished a drag operation
+    // or if a drag-drop operation was just completed
+    if (!drag_drop_successful) {
+        drag_drop_successful = false
+        return
+    }
+    
     if (move_call_in_progress || match_ended) return
+    
     if (event.target.className.includes("selected")) { 
         selected_piece.classList.remove("selected")
         selected_piece = undefined
@@ -304,28 +356,95 @@ function handleSquareClick(event) {
         return
     }
     
-    const fromSquare = selected_piece.dataset.position
-    const toSquare = event.target.dataset.position
-
-    if (fromSquare && toSquare) {
-        validateMove(fromSquare, toSquare, () => {
-            makeMove(fromSquare, toSquare, () =>  {
-                registerMove("player-white-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
-                selected_piece.classList.remove("selected")
-                selected_piece = undefined
-                // Move by AI agent
-                makeMove('', '', () => {
-                    registerMove("player-black-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
-                }, () => {
-                    stopTime()
-                    setWinner("player-white-name")
-                })
-            }, () => {
-                stopTime()
-                setWinner("player-black-name")
-            })
-        }, () => {})
+    // Execute the move using the shared function
+    if (selected_piece) {
+        executeMove(selected_piece, event.target)
     }
+}
+
+function handleDragStart(event) {
+    if (move_call_in_progress || match_ended) {
+        event.preventDefault()
+        return
+    }
+    
+    if (human_team === undefined && event.target.dataset.team) { 
+        human_team = event.target.dataset.team 
+    }
+    
+    // Only allow dragging pieces that belong to the human player
+    if (human_team && event.target.className.includes(human_team)) {
+        drag_drop_successful = false
+        event.target.classList.add('dragging')
+        event.dataTransfer.effectAllowed = 'move'
+        event.dataTransfer.setData('text/plain', event.target.dataset.position)
+        
+        // Clear any selected piece when dragging starts
+        if (selected_piece) {
+            selected_piece.classList.remove("selected")
+            selected_piece = undefined
+        }
+        
+        // Start clock if this is the first move
+        if (global_clock_interval_id === undefined && data_fen.endsWith('0 1')) {
+            global_clock_interval_id = setInterval(updateTime, 1000)
+            
+            // Disable agent selection once the game starts
+            const agent_select = document.getElementById('agent-select')
+            if (agent_select) {
+                agent_select.disabled = true
+            }
+        }
+    } else {
+        event.preventDefault()
+    }
+}
+
+function handleDragEnd(event) {
+    event.target.classList.remove('dragging')
+    // Remove hover effect from all squares
+    const allSquares = document.querySelectorAll('.square')
+    allSquares.forEach(square => {
+        square.classList.remove('drag-over')
+    })
+}
+
+function handleDragOver(event) {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+}
+
+function handleDragEnter(event) {
+    event.preventDefault()
+    event.target.classList.add('drag-over')
+}
+
+function handleDragLeave(event) {
+    event.target.classList.remove('drag-over')
+}
+
+function handleDrop(event) {
+    event.preventDefault()
+    event.target.classList.remove('drag-over')
+    
+    const fromPosition = event.dataTransfer.getData('text/plain')
+    const toPosition = event.target.dataset.position
+    
+    if (!fromPosition || !toPosition) return
+    
+    const fromSquare = document.getElementById(fromPosition)
+    if (!fromSquare) return
+    
+    // Don't allow dropping on your own pieces
+    if (event.target.dataset.team === human_team) {
+        return
+    }
+    
+    // Reuse the executeMove function from handleSquareClick
+    // Mark that we successfully completed a drag and drop operation after validation succeeds
+    executeMove(fromSquare, event.target, () => {
+        drag_drop_successful = true
+    })
 }
 
 function validateMove(from, to, ok, ko) {
@@ -345,7 +464,7 @@ function validateMove(from, to, ok, ko) {
         if (data.fen && data.status === 'OK') {
             if (ok) ok()
         } else if (data.fen && data.status === 'KO') {
-            if (ok) ko()
+            if (ko) ko()
         } else {
             throw data
         }

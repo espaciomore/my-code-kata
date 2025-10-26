@@ -37,9 +37,6 @@ body {
     white-space: nowrap;
 }
 
-.nav-logo a:hover {
-    /* color: #3498db; */
-}
 
 .nav-menu {
     display: flex;
@@ -278,6 +275,17 @@ td.score {
 
 .selected {
     border: 1px solid rgba(0, 0, 0, 0.8);
+}
+
+.dragging {
+    opacity: 0.5;
+    cursor: grabbing !important;
+}
+
+.drag-over {
+    background-color: rgba(52, 152, 219, 0.5) !important;
+    border: 3px solid #3498db !important;
+    box-sizing: border-box !important;
 }
 
 .white {
