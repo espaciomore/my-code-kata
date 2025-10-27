@@ -47,11 +47,14 @@ agent_computer = AgentComputer(
         - Move (UCI) to be made is "d2d3" which means moving a white (w) pawn (P) from position 'd2' to 'd3'.
         - Board (FEN) after is "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1" where 4P3 equals 4 empty squares followed by 1 white pawn (P) and 3 empty squares.
 
+        When a Pawn is moving to the 8th rank position it must be promoted to Queen, Bishop, Knight or Rook.
+        For example, the UCI for a Pawn promotion could be expressed in the format "b7b8q" where 'q' equals the desired promotion as Queen.
+
         You have to try to loose the least of points.
         You have to make the most points by overtaking the most precious pieces from the adversary.
 
         You are given the history of moves with FEN and UCI.
-        You provide an UCI of length 4 meaning from-to movement.
+        You provide an UCI of length 4 meaning from-to movement (with the exception of pawn promotion which has length 5).
         Your goal is to win so find the next best move based on the current chess board.
         You must choose the winning UCI move from the list provided to you.
 
@@ -122,6 +125,8 @@ def legal_moves():
     data = request.get_json()
     board = chess.Board(data['fen'])
     legal_moves = []
+
+    # TODO: validate if promotional moves are listed
 
     for move in board.legal_moves:
         legal_moves.append(move.uci())

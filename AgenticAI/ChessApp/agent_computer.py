@@ -6,6 +6,7 @@ from openai import AsyncOpenAI
 import re
 import json
 
+
 class ChessBoard(BaseModel):
     fen : str = Field(description="Chess positions based on the Forsyth-Edwards Notation (FEN) standard")
     uci : str = Field(description="Chess move based on the Universal Chess Interface (UCI) standard")
@@ -63,9 +64,9 @@ class AgentComputer():
             # output_type = ,
             model_settings=ModelSettings(timeout=30))
 
-        user_prompt = "Choose the next best move for Blacks and then provide the valid JSON like {\"uci\": \"a2a3\"} as the final answer."
+        user_prompt = "Choose the next best move for Blacks and then provide the valid JSON like {\"uci\": \"[a-z][1-8][a-z][1-8][a-z][a-z]?\"} as the final answer."
 
-        result = await Runner.run(self.agent, user_prompt, max_turns=30)
+        result = await Runner.run(self.agent, user_prompt, max_turns=30)       
         
         try:
             # Parse the response because some agents responds with text that is not just a JSON object
@@ -73,7 +74,6 @@ class AgentComputer():
             data_uci : str = json.loads(data_json)["uci"]
             
             return ChessBoard(fen=current_fen, uci=data_uci, score=None, appreciation=None)
-        except Exception as ex:
-            print(ex)
+        except Exception:
             print('agent result processing error')
             return None

@@ -10,5 +10,10 @@ async def run_app():
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
 
 if __name__ == '__main__':
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    # loop.create_task(run_app())
+    # loop.run_forever()
+    
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(run_app())
