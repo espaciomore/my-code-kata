@@ -177,6 +177,25 @@ function initializePromotionPieces() {
     })
 }
 
+function initializeChessBoard() {
+    const query_params = new URLSearchParams(window.location.search)
+    data_fen = query_params.get('fen')
+    const clock_time = query_params.get('clock')
+    
+    if (!validateFEN(data_fen)) {
+        fetch('/api/board/init-reset')
+            .then(response => response.json())
+            .then(data => {
+                data_fen = data.fen;
+                setCurrentTime(data.clock)
+                renderChessBoard(data.fen)
+            });
+    } else {
+        setCurrentTime(clock_time)
+        renderChessBoard(data_fen)
+    }
+}
+
 function getCurrentFen() {
     return data_fen
 }
@@ -187,6 +206,10 @@ function getLastMove() {
 
 function getLastScore() {
     return data_score
+}
+
+function setCurrentTime(clock_time) {
+    document.getElementById('clock-control').textContent = clock_time
 }
 
 function getCurrentTime() {
@@ -215,23 +238,7 @@ function updateTime() {
 }
 
 function validateFEN(fen) {
-    return !!`${fen}`.match(/([kqbnrpKQBNRP1-9]{1,8}\/?){8} [wb] [KQkq]{4} - \d+ \d+/g)
-}
-
-function initializeChessBoard() {
-    const query_params = new URLSearchParams(window.location.search)
-    data_fen = query_params.get('fen')
-    
-    if (!validateFEN(data_fen)) {
-        fetch('/api/board/init-reset')
-            .then(response => response.json())
-            .then(data => {
-                data_fen = data.fen;
-                renderChessBoard(data.fen)
-            });
-    } else {
-        renderChessBoard(data_fen)
-    }
+    return !!`${fen}`.match(/([kqbnrpKQBNRP1-9]{1,8}\/?){8} [wb]{1} [-KQkq]{1,4} [-KQkq]{1,4} \d+ \d+/g)
 }
 
 function getSquareClass(colIndex, rowIndex) {
@@ -292,23 +299,39 @@ function renderChessBoard(fen, callback) {
 }
 
 function registerMove(table_id, fen, uci, time, score) {
-    let new_entry = document.createElement("tr")
+    const new_entry = document.createElement("tr")
     new_entry.dataset.fen = fen
+    new_entry.dataset.uci = uci
+    new_entry.dataset.clock = time
+    new_entry.dataset.score = score
 
-    let td_move = document.createElement("td")
+    const td_move = document.createElement("td")
     td_move.classList.add("move")
     td_move.textContent = uci
     new_entry.appendChild(td_move)
 
-    let td_time = document.createElement("td")
+    const td_time = document.createElement("td")
     td_time.classList.add("time")
     td_time.textContent = time
     new_entry.appendChild(td_time)
 
-    let td_score = document.createElement("td")
+    const td_score = document.createElement("td")
     td_score.classList.add("score")
     td_score.textContent = score
     new_entry.appendChild(td_score)
+
+    if (!table_id.includes(human_team)) {
+        new_entry.classList.add('clickable')
+
+        new_entry.addEventListener('click', (event) => {
+            const event_target = event.target.parentNode
+            const query_params = new URLSearchParams(window.location.search)
+            query_params.set("fen", event_target.dataset.fen)
+            query_params.set("clock", event_target.dataset.clock)
+
+            window.location.replace(`${window.location.origin}/?${query_params.toString()}`)
+        })
+    } 
 
     document.getElementById(table_id).prepend(new_entry)
 }
@@ -361,7 +384,7 @@ function handleSquareClick(event) {
         selected_piece = event.target 
         selected_piece.classList.add("selected")
         
-        if (global_clock_interval_id === undefined && data_fen.endsWith('0 1')) {
+        if (global_clock_interval_id === undefined) {
             global_clock_interval_id = setInterval(updateTime, 1000)
             
             // Disable agent selection once the game starts
@@ -405,7 +428,7 @@ function handleDragStart(event) {
         event.dataTransfer.setData('text/plain', event.target.dataset.position)
         
         // Start clock if this is the first move
-        if (global_clock_interval_id === undefined && data_fen.endsWith('0 1')) {
+        if (global_clock_interval_id === undefined) {
             global_clock_interval_id = setInterval(updateTime, 1000)
             
             // Disable agent selection once the game starts

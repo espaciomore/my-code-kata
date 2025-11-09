@@ -47,16 +47,12 @@ agent_computer = AgentComputer(
         - Move (UCI) to be made is "d2d3" which means moving a white (w) pawn (P) from position 'd2' to 'd3'.
         - Board (FEN) after is "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1" where 4P3 equals 4 empty squares followed by 1 white pawn (P) and 3 empty squares.
 
-        When a Pawn is moving to the 8th rank position it must be promoted to Queen, Bishop, Knight or Rook.
-        For example, the UCI for a Pawn promotion could be expressed in the format "b7b8q" where 'q' equals the desired promotion as Queen.
-
         You have to try to loose the least of points.
         You have to make the most points by overtaking the most precious pieces from the adversary.
 
-        You are given the history of moves with FEN and UCI.
-        You provide an UCI of length 4 meaning from-to movement (with the exception of pawn promotion which has length 5).
         Your goal is to win so find the next best move based on the current chess board.
-        You must choose the winning UCI move from the list provided to you.
+        You are given the history of moves with FEN and UCI.
+        You must choose the best UCI move from the given history of moves.
 
         Think fast and good luck!""",
     tools = [],
@@ -85,7 +81,7 @@ def calculate_material_score(board, color):
     for piece_type in piece_values:
         score += len(board.pieces(piece_type, color)) * piece_values[piece_type]
 
-    return 39 - score
+    return score
 
 def configure_agent_computer(agent_id: str):
     """Configure the agent computer with the specified agent's API settings."""
@@ -110,7 +106,12 @@ def init_board():
         board = chess.Board()
     else:
         board = chess.Board(fen)
-    return jsonify({'fen': board.fen()})
+
+    clock = request.args.get('clock')
+    if not clock:
+        clock = '00 : 00 : 00'
+
+    return jsonify({'fen': board.fen(), 'clock': clock})
 
 # Validate move
 @app.route('/api/board/validate-move', methods=['POST'])
@@ -147,10 +148,10 @@ def make_move():
     list_legal_moves = list(map(lambda obj: obj.uci(), board.legal_moves))
 
     if len(list_legal_moves) == 0:
-        return jsonify({'fen': data['fen'], 'uci': data['uci'], 'score': calculate_material_score(board, chess.BLACK), 'status': 'CHECKMATE'})
+        return jsonify({'fen': data['fen'], 'uci': data['uci'], 'score': calculate_material_score(board, chess.WHITE), 'status': 'CHECKMATE'})
 
     board.push(move)
-    score = calculate_material_score(board, chess.BLACK)
+    score = calculate_material_score(board, chess.WHITE)
 
     agent_computer.update_history(data['fen'], move.uci(), score)
     
@@ -162,28 +163,32 @@ async def make_ai_move():
     data = request.get_json()
     board = chess.Board(data['fen'])
     list_legal_moves = list(map(lambda obj: obj.uci(), board.legal_moves))
-
+    
     if len(list_legal_moves) == 0:
-        return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.WHITE), 'status': 'CHECKMATE'})
+        return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.BLACK), 'status': 'CHECKMATE'})
 
     shuffled_legal_moves = list_legal_moves.copy()
     random.shuffle(shuffled_legal_moves)
 
-    actual_score = calculate_material_score(board, chess.WHITE)
-    moves_with_scores = list(map(lambda obj: [obj, actual_score - calculate_material_score(board, chess.WHITE)], shuffled_legal_moves))
+    moves_with_scores = list(map(lambda obj: [obj, calculate_material_score(board, chess.BLACK)], shuffled_legal_moves))
     
     configure_agent_computer(data['agent']['id'])
 
-    chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(moves_with_scores))
+    chessboard: ChessBoard | None = None
+    
+    for times in range(0,3):
+        chessboard = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(moves_with_scores))
+        if chessboard and chessboard.uci in list_legal_moves:
+            break;
 
     if chessboard is None or len(chessboard.uci) not in [3,4,5] or chessboard.uci not in list_legal_moves:
-        return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.WHITE), 'status': 'KO'})
+        return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.BLACK), 'status': 'KO'})
 
     move = chess.Move.from_uci(chessboard.uci)
 
     board.push(move)    
 
-    score = calculate_material_score(board, chess.WHITE)
+    score = calculate_material_score(board, chess.BLACK)
     agent_computer.update_history(data['fen'], move.uci(), score)
     
     return jsonify({'fen': board.fen(), 'uci': chessboard.uci, 'score': score, 'status': 'OK'})

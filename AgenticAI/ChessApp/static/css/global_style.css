@@ -257,6 +257,11 @@ div.board-and-scores table tr {
     font-size: small;    
 }
 
+tr.clickable {
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
 td.move {
     width: 4ch;
 }
