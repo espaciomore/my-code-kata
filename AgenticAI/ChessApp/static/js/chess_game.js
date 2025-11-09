@@ -54,6 +54,7 @@ let data_fen = undefined
 let data_score = undefined
 let data_uci = undefined
 let selected_piece = undefined
+let selected_promotion = undefined
 let global_clock_interval_id = undefined
 let move_call_in_progress = false
 let match_ended = false
@@ -61,6 +62,7 @@ let match_ended = false
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeAgentDropdown();
+    initializePromotionPieces();
     initializeChessBoard();
     initializeSocialButtons();
 });
@@ -152,6 +154,29 @@ function initializeAgentDropdown() {
     });
 }
 
+function initializePromotionPieces() {
+    const promotion_pieces = document.getElementById('promotion-pieces')
+    
+    Array.from(promotion_pieces.children).forEach(square => {
+        if (human_team === 'black') { square.dataset.piece.toUpperCase() }
+        
+        square.textContent = piece_meta_map.get(square.dataset.piece).unicode
+
+        if (square.className.includes('selected')) { selected_promotion = square }
+
+        square.addEventListener('click', (event) => {
+            if (selected_promotion && selected_promotion !== event.target) {
+                selected_promotion.classList.remove('selected')
+            }
+            
+            if (!event.target.className.includes('selected')) {
+                event.target.classList.add('selected')
+                selected_promotion = event.target
+            }
+        })
+    })
+}
+
 function getCurrentFen() {
     return data_fen
 }
@@ -189,8 +214,15 @@ function updateTime() {
     global_clock.textContent = `${hours} : ${minutes} : ${seconds}`
 }
 
+function validateFEN(fen) {
+    return !!`${fen}`.match(/([kqbnrpKQBNRP1-9]{1,8}\/?){8} [wb] [KQkq]{4} - \d+ \d+/g)
+}
+
 function initializeChessBoard() {
-    if (data_fen === undefined) {
+    const query_params = new URLSearchParams(window.location.search)
+    data_fen = query_params.get('fen')
+    
+    if (!validateFEN(data_fen)) {
         fetch('/api/board/init-reset')
             .then(response => response.json())
             .then(data => {
@@ -290,15 +322,15 @@ function executeMove(fromElement, toElement) {
     const toSquare = toElement.dataset.position
 
     if (fromSquare && toSquare) {
-        validateMove(fromSquare, toSquare, () => {
-            makeMove(fromSquare, toSquare, () =>  {
+        validateMove(fromElement.dataset.name, fromSquare, toSquare, () => {
+            makeMove(fromElement.dataset.name, fromSquare, toSquare, () =>  {
                 registerMove("player-white-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
                 if (selected_piece) {
                     selected_piece.classList.remove("selected")
                     selected_piece = undefined
                 }
                 // Move by AI agent
-                makeMove('', '', () => {
+                makeMove(fromElement.dataset.name, '', '', () => {
                     registerMove("player-black-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
                 }, () => {
                     stopTime()
@@ -438,7 +470,8 @@ function handleDrop(event) {
     executeMove(fromSquare, event.target)
 }
 
-function validateMove(from, to, ok, ko) {
+function validateMove(piece_name, from, to, ok, ko) {
+    if (piece_name === 'pawn' && from.includes('7', 1)) to = to + selected_promotion.dataset.piece
     move_call_in_progress = true;
     const api_url = '/api/board/validate-move'
     fetch(api_url, {
@@ -446,7 +479,7 @@ function validateMove(from, to, ok, ko) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}` })
+        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}`, piece: piece_name })
     }).then(response => {
         if (!response.ok) throw `${response.url} ${response.status} ${response.statusText}`
         
@@ -470,7 +503,8 @@ function validateMove(from, to, ok, ko) {
     });
 }
 
-function makeMove(from, to, ok, checkmate) {
+function makeMove(piece_name, from, to, ok, checkmate) {
+    if (piece_name === 'pawn' && from.includes('7', 1)) to = to + selected_promotion.dataset.piece
     move_call_in_progress = true;
     const api_url = '/api/board/' + (from && to ? 'make-move':'make-ai-move')
     fetch(api_url, {
@@ -478,7 +512,7 @@ function makeMove(from, to, ok, checkmate) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}`, agent: agent_data })
+        body: JSON.stringify({ fen: data_fen, uci: `${from}${to}`, agent: agent_data, piece: piece_name })
     }).then(response => {
         if (!response.ok) throw `${response.url} ${response.status} ${response.statusText}`
         

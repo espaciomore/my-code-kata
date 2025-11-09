@@ -105,7 +105,11 @@ def give_appreciation(data: dict, appreciation: str):
 # Initialize a new chess board
 @app.route('/api/board/init-reset', methods=['GET'])
 def init_board():
-    board = chess.Board()
+    fen = request.args.get('fen')
+    if not fen:
+        board = chess.Board()
+    else:
+        board = chess.Board(fen)
     return jsonify({'fen': board.fen()})
 
 # Validate move
@@ -115,7 +119,10 @@ def validate_move():
     board = chess.Board(data['fen'])
     move = chess.Move.from_uci(data['uci'])
 
-    if move in board.legal_moves:
+    parsed_squared = chess.parse_square(data['uci'][0:2])
+    legal_moves = board.generate_legal_moves(from_mask=chess.BB_SQUARES[parsed_squared])
+
+    if move in legal_moves:
         return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'OK'})
 
     return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'KO'})
@@ -125,8 +132,6 @@ def legal_moves():
     data = request.get_json()
     board = chess.Board(data['fen'])
     legal_moves = []
-
-    # TODO: validate if promotional moves are listed
 
     for move in board.legal_moves:
         legal_moves.append(move.uci())
@@ -171,7 +176,7 @@ async def make_ai_move():
 
     chessboard: ChessBoard | None = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(moves_with_scores))
 
-    if chessboard is None or len(chessboard.uci) != 4 or chessboard.uci not in list_legal_moves:
+    if chessboard is None or len(chessboard.uci) not in [3,4,5] or chessboard.uci not in list_legal_moves:
         return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.WHITE), 'status': 'KO'})
 
     move = chess.Move.from_uci(chessboard.uci)
