@@ -16,11 +16,6 @@ body {
     top: 0;
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-
-    span#app-logo {
-        font-size: 2rem;
-        margin: 4px;
-    }
 }
 
 .nav-container {
@@ -34,11 +29,16 @@ body {
 }
 
 .nav-logo {
-    letter-spacing: 0.1rem;
+    letter-spacing: 0;
     font-size: 1.5rem;
-    font-weight: bold;
     transition: color 0.3s ease;
     white-space: nowrap;
+    
+    span#app-logo {
+        font-size: 2.2rem;
+        font-family: 'Old English Text MT';
+        font-weight: lighter;
+    }
 
     a {
         color: #ecf0f1;
