@@ -329,7 +329,7 @@ function registerMove(table_id, fen, uci, time, score) {
             query_params.set("fen", event_target.dataset.fen)
             query_params.set("clock", event_target.dataset.clock)
 
-            window.location.replace(`${window.location.origin}/?${query_params.toString()}`)
+            window.open(`${window.location.origin}/?${query_params.toString()}`, '_blank')
         })
     } 
 

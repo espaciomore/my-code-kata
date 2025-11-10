@@ -16,27 +16,37 @@ body {
     top: 0;
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    span#app-logo {
+        font-size: 2rem;
+        margin: 4px;
+    }
 }
 
 .nav-container {
-    max-width: 1200px;
+    max-width: 62vw;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 60px;
+    height: 58px;
 }
 
-.nav-logo a {
-    color: #ecf0f1;
-    text-decoration: none;
+.nav-logo {
+    letter-spacing: 0.1rem;
     font-size: 1.5rem;
     font-weight: bold;
     transition: color 0.3s ease;
     white-space: nowrap;
-}
 
+    a {
+        color: #ecf0f1;
+        text-decoration: none;
+        vertical-align: middle;
+        line-height: 100%;
+    }
+}
 
 .nav-menu {
     display: flex;
@@ -135,6 +145,10 @@ body {
 
 /* Mobile Responsive */
 @media screen and (max-width: 768px) {
+    .nav-container {
+        max-width: 90vw;
+    }
+
     .nav-menu {
         position: fixed;
         left: -100%;
@@ -193,12 +207,26 @@ body {
     }
 }
 
+@media screen and (min-width: 768px) {
+    .nav-container {
+        max-width: 80vw;
+    }
+}
+
+@media screen and (min-width: 1080px) {
+    .nav-container {
+        max-width: 62vw;
+    }
+}
+
 h1 {
     text-align: center;
 }
 
 #global-clock {
     text-align: center;
+    margin-bottom: 1.5rem;
+
     button {
         border-radius: 6px;
         padding: 8px;
@@ -224,7 +252,7 @@ h1 {
 
 #chess-board {
     justify-content: center;
-    margin: 0 auto;
+    margin: 30px;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     row-gap: 0;
@@ -236,6 +264,7 @@ h1 {
 
 .player-name {
     font-weight: bold;
+    text-align: center;
 }
 
 div.board-and-scores {
@@ -243,18 +272,39 @@ div.board-and-scores {
     margin: 0 auto;
     display: flex;
     justify-content: center;
-}
 
-div.board-and-scores table {
-    display: block;
-    overflow: auto;
-    min-height: 320px;
-    max-height: 30vh;
-}
+    table {
+        display: block;
+        overflow: auto;
+        min-height: 450px;
+        max-height: 35vh;
+        border-collapse: collapse;
+        line-height: 1.25rem;
+        background-color: white;
 
-div.board-and-scores table tr {
-    white-space: nowrap;
-    font-size: small;    
+        thead {
+            margin: 2px;
+        }
+
+        th {
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e0e0e0;    
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+            z-index: 1;         
+        }
+        
+        tr {
+            white-space: nowrap;
+            font-size: small;    
+            border-bottom: 1px solid #e0e0e0;
+        }
+    
+        tr:last-child {
+            border-bottom: none;
+        }
+    }
 }
 
 tr.clickable {
@@ -263,21 +313,34 @@ tr.clickable {
 }
 
 td.move {
-    width: 4ch;
+    width: 6ch;
+    text-align: center;
 }
 
 td.time {
     width: 12ch;
     white-space: nowrap;
+    text-align: center;
 }
 
 td.score {
-    width: 2ch;
+    width: 6ch;
+    text-align: center;
+}
+
+.table-wrapper {
+    border: 1px solid #c5cfd9;
+    border-radius: 10px;
+    padding: 4px;
+    margin-top: 10px;
+    background-color: #f2f2f2;
 }
 
 .square {
     min-width: 50px;
     min-height: 50px;
+    max-width: 58px;
+    max-height: 58px;
     width: 4vw;
     height: 4vw;
     aspect-ratio: 1 / 1;
@@ -338,6 +401,8 @@ td.score {
 
 #social-buttons {
     text-align: center;
+    margin-top: 1.5rem;
+
     button {
         border: none;
         outline: none;
