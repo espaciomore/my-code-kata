@@ -114,6 +114,9 @@ function initializeAgentDropdown() {
             // Clear existing options
             agent_select.innerHTML = ''
             
+            const query_params = new URLSearchParams(window.location.search)
+            const agent_id = query_params.get('agent')
+
             // Add each agent as an option
             agents.forEach((agent, index) => {
                 const option = document.createElement('option');
@@ -121,8 +124,8 @@ function initializeAgentDropdown() {
                 if (agent_data === undefined) {
                     agent_data = agent
                 }
-
-                if (index === 0) {
+                
+                if ((agent_id && `${agent.id}` === agent_id) || (!agent_id && index === 0)) {
                     option.selected = true;
                 }
                 
@@ -257,6 +260,10 @@ function validateFEN(fen) {
     return !!`${fen}`.match(/([kqbnrpKQBNRP1-9]{1,8}\/?){8} [wb]{1} [-KQkq]{1,4} [-KQkq]{1,4} \d+ \d+/g)
 }
 
+function getTurn(fen) {
+    return !!`${fen}`.match(/\sw{1}\s/g) ? WHITE : BLACK
+}
+
 function getSquareClass(colIndex, rowIndex) {
     return ((colIndex + rowIndex + 1) % 2 === 0) ? BLACK : WHITE
 }
@@ -343,6 +350,7 @@ function registerMove(table_id, fen, uci, time, score) {
         const query_params = new URLSearchParams(window.location.search)
         query_params.set("fen", event_target.dataset.fen)
         query_params.set("clock", event_target.dataset.clock)
+        query_params.set("agent", event_target.dataset.agent)
 
         window.open(`${window.location.origin}/?${query_params.toString()}`, '_blank')
     })
@@ -399,7 +407,7 @@ function assignCurrentPlayer(team) {
     document.getElementById('player-white-name').textContent = white_team.player
     document.getElementById('player-black-name').textContent = black_team.player
 
-    current_player = white_team
+    current_player = getTurn() === WHITE ? white_team : black_team
     
     updatePromotionPieces();
 }
