@@ -5,36 +5,40 @@
         "properties": {
             "id": {
                 "type": "integer",
-                "description": "Unique identifier for the agent"
+                "description": "Unique identifier"
             },
             "type": {
                 "type": "string",
-                "enum": ["SYSTEM", "USER"],
-                "description": "Type of agent - either SYSTEM or USER"
+                "enum": ["REMOTE_AGENT", "LOCAL_AGENT", "LOCAL_USER", "REMOTE_USER"],
+                "description": "Type of agent - either REMOTE_AGENT or USER"
             },
             "name": {
                 "type": "string",
-                "description": "Display name of the agent"
+                "description": "Display name"
             },
             "description": {
                 "type": "string",
-                "description": "Description of the agent's capabilities"
+                "description": "Brief description"
             },
             "model": {
                 "type": "string",
-                "description": "Model identifier used by the agent"
+                "description": "Model identifier for remote AI agents"
             },
             "api_url": {
                 "type": "string",
                 "format": "uri",
-                "description": "API endpoint URL for the agent"
+                "description": "API endpoint URL"
             },
             "api_key": {
                 "type": "string",
                 "description": "API key for authentication"
+            },
+            "enabled": {
+                "type": "boolean",
+                "description": "Working state"
             }
         },
-        "required": ["id", "type", "name", "description", "model", "api_url", "api_key"],
+        "required": ["id", "type", "name", "description", "model", "api_url", "api_key", "enabled"],
         "additionalProperties": false
     }
 }

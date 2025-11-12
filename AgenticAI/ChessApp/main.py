@@ -111,7 +111,9 @@ def init_board():
     if not clock:
         clock = '00 : 00 : 00'
 
-    return jsonify({'fen': board.fen(), 'clock': clock})
+    return jsonify({
+        'fen': board.fen(),
+        'clock': clock })
 
 # Validate move
 @app.route('/api/board/validate-move', methods=['POST'])
@@ -123,10 +125,10 @@ def validate_move():
     parsed_squared = chess.parse_square(data['uci'][0:2])
     legal_moves = board.generate_legal_moves(from_mask=chess.BB_SQUARES[parsed_squared])
 
-    if move in legal_moves:
-        return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'OK'})
-
-    return jsonify({'fen': data['fen'], 'uci': data['uci'], 'status': 'KO'})
+    return jsonify({
+        'fen': data['fen'],
+        'uci': data['uci'],
+        'status': 'OK' if move in legal_moves else 'KO' })
 
 @app.route('/api/board/legal-moves', methods=['POST'])
 def legal_moves():
@@ -137,7 +139,10 @@ def legal_moves():
     for move in board.legal_moves:
         legal_moves.append(move.uci())
 
-    return jsonify({'fen': data['fen'], 'uci': legal_moves, 'status': 'OK'})
+    return jsonify({
+        'fen': data['fen'],
+        'uci': legal_moves,
+        'status': 'OK' })
 
 # Make move
 @app.route('/api/board/make-move', methods=['POST'])
@@ -145,32 +150,29 @@ def make_move():
     data = request.get_json()
     board = chess.Board(data['fen'])
     move = chess.Move.from_uci(data['uci'])
-    list_legal_moves = list(map(lambda obj: obj.uci(), board.legal_moves))
-
-    if len(list_legal_moves) == 0:
-        return jsonify({'fen': data['fen'], 'uci': data['uci'], 'score': calculate_material_score(board, chess.WHITE), 'status': 'CHECKMATE'})
 
     board.push(move)
-    score = calculate_material_score(board, chess.WHITE)
+    score = calculate_material_score(board, board.turn)
 
     agent_computer.update_history(data['fen'], move.uci(), score)
     
-    return jsonify({'fen': board.fen(), 'uci': data['uci'], 'score': score, 'status': 'OK'})
+    return jsonify({
+        'fen': board.fen(),
+        'uci': data['uci'],
+        'score': score,
+        'status': 'CHECKMATE' if board.is_checkmate() else 'OK' })
 
 # Make move by an AI agent
-@app.route('/api/board/make-ai-move', methods=['POST'])
+@app.route('/api/board/remote-agent-move', methods=['POST'])
 async def make_ai_move():
     data = request.get_json()
     board = chess.Board(data['fen'])
     list_legal_moves = list(map(lambda obj: obj.uci(), board.legal_moves))
     
-    if len(list_legal_moves) == 0:
-        return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.BLACK), 'status': 'CHECKMATE'})
-
     shuffled_legal_moves = list_legal_moves.copy()
     random.shuffle(shuffled_legal_moves)
 
-    moves_with_scores = list(map(lambda obj: [obj, calculate_material_score(board, chess.BLACK)], shuffled_legal_moves))
+    moves_with_scores = list(map(lambda obj: [obj, calculate_material_score(board, board.turn)], shuffled_legal_moves))
     
     configure_agent_computer(data['agent']['id'])
 
@@ -180,18 +182,19 @@ async def make_ai_move():
         chessboard = await agent_computer.make_move(current_fen=data['fen'], legal_moves=str(moves_with_scores))
         if chessboard and chessboard.uci in list_legal_moves:
             break;
-
-    if chessboard is None or len(chessboard.uci) not in [3,4,5] or chessboard.uci not in list_legal_moves:
-        return jsonify({'fen': data['fen'], 'uci': '', 'score': calculate_material_score(board, chess.BLACK), 'status': 'KO'})
-
-    move = chess.Move.from_uci(chessboard.uci)
-
-    board.push(move)    
-
-    score = calculate_material_score(board, chess.BLACK)
-    agent_computer.update_history(data['fen'], move.uci(), score)
     
-    return jsonify({'fen': board.fen(), 'uci': chessboard.uci, 'score': score, 'status': 'OK'})
+    if chessboard is None or len(chessboard.uci) not in [3,4,5] or chessboard.uci not in list_legal_moves:
+        return jsonify({
+            'fen': data['fen'],
+            'uci': '',
+            'score': '',
+            'status': 'KO' })
+    
+    return jsonify({
+        'fen': board.fen(),
+        'uci': chessboard.uci,
+        'score': '',
+        'status': 'OK' })
 
 # Check for checkmate
 @app.route('/api/board/is_checkmate', methods=['POST'])
@@ -238,7 +241,13 @@ def home():
 @app.route('/api/agents', methods=['GET'])
 def get_agents():
     # Return only id, name, and model for each agent
-    agents = [{"id": agent.get('id'), "name": agent.get('name'), "model": agent.get('model')} for agent in agent_list]
+    agents = [{
+            "id": agent.get('id'),
+            "type": agent.get('type'),
+            "name": agent.get('name'),
+            "model": agent.get('model')
+        } for agent in agent_list ]
+
     return jsonify(agents)
 
 if __name__ == '__main__':

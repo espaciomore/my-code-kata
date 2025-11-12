@@ -1,7 +1,9 @@
 from typing import Any
 from pydantic import BaseModel, Field
-from agents import Agent, Runner, ModelSettings, OpenAIChatCompletionsModel
+from agents import Agent, Runner, ModelSettings, OpenAIChatCompletionsModel, set_tracing_disabled
 from openai import AsyncOpenAI
+
+set_tracing_disabled(True)
 
 import re
 import json
@@ -52,7 +54,7 @@ class AgentComputer():
             model=self.model,
             openai_client=AsyncOpenAI(base_url=self.base_url, api_key=self.api_key)
         )
-
+        
         self.agent = Agent(
             name = self.name, 
             instructions = f"{self.instructions}\n\n" +

@@ -30,41 +30,48 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+const REMOTE_AGENT = "REMOTE_AGENT"
+const REMOTE_USER = "REMOTE_USER"
+const LOCAL_AGENT = "LOCAL_AGENT"
+const LOCAL_USER = "LOCAL_USER"
+const WHITE = "white"
+const BLACK = "black"
 const piece_meta_map = new Map([
-    ['K', {unicode: '\u{2654}', class: 'white', name: 'king'}],
-    ['k', {unicode: '\u{265A}', class: 'black', name: 'king'}],
-    ['Q', {unicode: '\u{2655}', class: 'white', name: 'queen'}],
-    ['q', {unicode: '\u{265B}', class: 'black', name: 'queen'}],
-    ['R', {unicode: '\u{2656}', class: 'white', name: 'rook'}],
-    ['r', {unicode: '\u{265C}', class: 'black', name: 'rook'}],
-    ['B', {unicode: '\u{2657}', class: 'white', name: 'bishop'}],
-    ['b', {unicode: '\u{265D}', class: 'black', name: 'bishop'}],
-    ['N', {unicode: '\u{2658}', class: 'white', name: 'knight'}],
-    ['n', {unicode: '\u{265E}', class: 'black', name: 'knight'}],
-    ['P', {unicode: '\u{2659}', class: 'white', name: 'pawn'}],
-    ['p', {unicode: '\u{265F}', class: 'black', name: 'pawn'}]
+    ['K', {unicode: '\u{2654}', class: WHITE, name: 'king'}],
+    ['k', {unicode: '\u{265A}', class: BLACK, name: 'king'}],
+    ['Q', {unicode: '\u{2655}', class: WHITE, name: 'queen'}],
+    ['q', {unicode: '\u{265B}', class: BLACK, name: 'queen'}],
+    ['R', {unicode: '\u{2656}', class: WHITE, name: 'rook'}],
+    ['r', {unicode: '\u{265C}', class: BLACK, name: 'rook'}],
+    ['B', {unicode: '\u{2657}', class: WHITE, name: 'bishop'}],
+    ['b', {unicode: '\u{265D}', class: BLACK, name: 'bishop'}],
+    ['N', {unicode: '\u{2658}', class: WHITE, name: 'knight'}],
+    ['n', {unicode: '\u{265E}', class: BLACK, name: 'knight'}],
+    ['P', {unicode: '\u{2659}', class: WHITE, name: 'pawn'}],
+    ['p', {unicode: '\u{265F}', class: BLACK, name: 'pawn'}]
 ]);
 const first_place_medal = '\u{1F947}'
 const thumbs_up = '\u{1F592}'
 const thumbs_down = '\u{1F593}'
+let white_team = undefined
+let black_team = undefined
+let current_player = undefined
 let agent_data = undefined
-let human_team = 'white'
 let prev_fen = undefined
 let data_fen = undefined
 let data_score = undefined
 let data_uci = undefined
 let selected_piece = undefined
-let selected_promotion = undefined
 let global_clock_interval_id = undefined
 let move_call_in_progress = false
 let match_ended = false
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeAgentDropdown();
-    initializePromotionPieces();
-    initializeChessBoard();
-    initializeSocialButtons();
+    initializeAgentDropdown()
+    initializePromotionPieces()
+    initializeChessBoard()
+    initializeSocialButtons()
 });
 
 function initializeSocialButtons() {
@@ -99,7 +106,6 @@ function initializeSocialButtons() {
 
 function initializeAgentDropdown() {
     const agent_select = document.getElementById('agent-select')
-    const black_player_name = document.getElementById('player-black-name')
     
     // Load agents from JSON file
     fetch('/api/agents')
@@ -113,19 +119,19 @@ function initializeAgentDropdown() {
                 const option = document.createElement('option');
                 
                 if (agent_data === undefined) {
-                    agent_data = {
-                        id: agent.id,
-                        name: agent.name,
-                        model: agent.model
-                    };
+                    agent_data = agent
+                }
 
-                    black_player_name.textContent = agent_data.name;
+                if (index === 0) {
                     option.selected = true;
                 }
                 
                 option.value = agent.id;
                 option.textContent = agent.name;
-                option.dataset.model = agent.model;
+
+                option.dataset.id = agent.id
+                option.dataset.name = agent.name
+                option.dataset.type = agent.type
                 
                 agent_select.appendChild(option);
             });
@@ -142,15 +148,7 @@ function initializeAgentDropdown() {
     // Handle agent selection
     agent_select.addEventListener('change', function() {
         const selected_option = this.options[this.selectedIndex];
-        if (selected_option.value) {
-            agent_data = {
-                id: selected_option.value,
-                name: selected_option.textContent,
-                model: selected_option.dataset.model
-            };
-            
-            black_player_name.textContent = agent_data.name;
-        }
+        agent_data = selected_option.dataset
     });
 }
 
@@ -158,22 +156,36 @@ function initializePromotionPieces() {
     const promotion_pieces = document.getElementById('promotion-pieces')
     
     Array.from(promotion_pieces.children).forEach(square => {
-        if (human_team === 'black') { square.dataset.piece.toUpperCase() }
+        square.addEventListener('click', (event) => {
+            if (current_player.team === WHITE) {
+                white_team.promotion = event.target.dataset.piece
+                current_player.promotion = white_team.promotion
+            } else {
+                black_team.promotion = event.target.dataset.piece
+                current_player.promotion = black_team.promotion
+            }
+            updatePromotionPieces()
+        })
+    })
+}
+
+function updatePromotionPieces() {
+    const promotion_pieces = document.getElementById('promotion-pieces')
+    
+    Array.from(promotion_pieces.children).forEach(square => {
+        const is_white_team = current_player.team === WHITE;
+
+        square.dataset.piece = is_white_team ? square.dataset.piece.toUpperCase() : square.dataset.piece.toLowerCase()
         
         square.textContent = piece_meta_map.get(square.dataset.piece).unicode
 
-        if (square.className.includes('selected')) { selected_promotion = square }
+        current_player.promotion = is_white_team ? white_team.promotion : black_team.promotion
 
-        square.addEventListener('click', (event) => {
-            if (selected_promotion && selected_promotion !== event.target) {
-                selected_promotion.classList.remove('selected')
-            }
-            
-            if (!event.target.className.includes('selected')) {
-                event.target.classList.add('selected')
-                selected_promotion = event.target
-            }
-        })
+        square.classList.remove('selected')
+
+        if (current_player.promotion === square.dataset.piece) {
+            square.classList.add('selected')
+        }
     })
 }
 
@@ -237,12 +249,16 @@ function updateTime() {
     global_clock.textContent = `${hours} : ${minutes} : ${seconds}`
 }
 
+function isRemoteAgentTurn() {
+    return current_player.type === REMOTE_AGENT
+}
+
 function validateFEN(fen) {
     return !!`${fen}`.match(/([kqbnrpKQBNRP1-9]{1,8}\/?){8} [wb]{1} [-KQkq]{1,4} [-KQkq]{1,4} \d+ \d+/g)
 }
 
 function getSquareClass(colIndex, rowIndex) {
-    return ((colIndex + rowIndex + 1) % 2 === 0) ? 'black' : 'white'
+    return ((colIndex + rowIndex + 1) % 2 === 0) ? BLACK : WHITE
 }
 
 function renderChessBoard(fen, callback) {
@@ -320,18 +336,16 @@ function registerMove(table_id, fen, uci, time, score) {
     td_score.textContent = score
     new_entry.appendChild(td_score)
 
-    if (!table_id.includes(human_team)) {
-        new_entry.classList.add('clickable')
+    new_entry.classList.add('clickable')
 
-        new_entry.addEventListener('click', (event) => {
-            const event_target = event.target.parentNode
-            const query_params = new URLSearchParams(window.location.search)
-            query_params.set("fen", event_target.dataset.fen)
-            query_params.set("clock", event_target.dataset.clock)
+    new_entry.addEventListener('click', (event) => {
+        const event_target = event.target.parentNode
+        const query_params = new URLSearchParams(window.location.search)
+        query_params.set("fen", event_target.dataset.fen)
+        query_params.set("clock", event_target.dataset.clock)
 
-            window.open(`${window.location.origin}/?${query_params.toString()}`, '_blank')
-        })
-    } 
+        window.open(`${window.location.origin}/?${query_params.toString()}`, '_blank')
+    })
 
     document.getElementById(table_id).prepend(new_entry)
 }
@@ -340,31 +354,54 @@ function setWinner(name_id) {
     document.getElementById(name_id).textContent += ` ${first_place_medal}`
 }
 
-function executeMove(fromElement, toElement) {
-    const fromSquare = fromElement.dataset.position
-    const toSquare = toElement.dataset.position
+function executeMove(from_square, to_square) {
+    const is_pawn_promotion = from_square.dataset.name === 'pawn' && from_square.dataset.position.includes(current_player.team === WHITE ? '7':'2', 1)
 
-    if (fromSquare && toSquare) {
-        validateMove(fromElement.dataset.name, fromSquare, toSquare, () => {
-            makeMove(fromElement.dataset.name, fromSquare, toSquare, () =>  {
-                registerMove("player-white-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
+    const uci_from = from_square.dataset.position
+    const uci_to = to_square.dataset.position + (!isRemoteAgentTurn() && is_pawn_promotion ? current_player.promotion.dataset.piece.toLowerCase() : '')
+
+    if (uci_from && uci_to) {
+        validateMove(from_square.dataset.name, uci_from, uci_to, () => {
+            makeMove(from_square.dataset.name, uci_from, uci_to, () =>  {
+                registerMove(`player-${current_player.team}-moves`, getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
                 if (selected_piece) {
                     selected_piece.classList.remove("selected")
                     selected_piece = undefined
                 }
-                // Move by AI agent
-                makeMove(fromElement.dataset.name, '', '', () => {
-                    registerMove("player-black-moves", getCurrentFen(), getLastMove(), getCurrentTime(), getLastScore())
-                }, () => {
-                    stopTime()
-                    setWinner("player-white-name")
-                })
+                // Change turn
+                current_player = current_player === white_team ? black_team : white_team;
+                updatePromotionPieces();
+                // Check if next turn is a remote agent
+                if (isRemoteAgentTurn()) {
+                    getRemoteAgentMove(() => {
+                        const this_from_square = document.getElementById(data_uci.substring(0, 2))
+                        const this_to_square = document.getElementById(data_uci.substring(2,5))
+                        executeMove(this_from_square, this_to_square)
+                    })
+                }
             }, () => {
                 stopTime()
-                setWinner("player-black-name")
+                setWinner(`player-${current_player.team}-name`)
             })
-        }, () => {})
+        })
     }
+}
+
+function assignCurrentPlayer(team) {
+    if (team === WHITE) {
+        white_team = { type: LOCAL_USER, team: WHITE, player: 'User', promotion: 'Q' }
+        black_team = { type: agent_data.type, team: BLACK, player: agent_data.name, promotion: 'q' }
+    } else {
+        white_team = { type: agent_data.type, team: WHITE, player: agent_data.name, promotion: 'Q' }
+        black_team = { type: LOCAL_USER, team: BLACK, player: 'User', promotion: 'q' }
+    }
+
+    document.getElementById('player-white-name').textContent = white_team.player
+    document.getElementById('player-black-name').textContent = black_team.player
+
+    current_player = white_team
+    
+    updatePromotionPieces();
 }
 
 function handleSquareClick(event) {    
@@ -375,12 +412,12 @@ function handleSquareClick(event) {
         selected_piece = undefined
         return 
     }
-    // Assign the human team choice when selecting the first piece
-    if (human_team === undefined && event.target.dataset.team) { 
-        human_team = event.target.dataset.team 
+    // Assign the preferred team when selecting the first piece
+    if (current_player === undefined) { 
+        assignCurrentPlayer(event.target.dataset.team)
     }
 
-    if (selected_piece === undefined && human_team && human_team === event.target.dataset.team) {
+    if (selected_piece === undefined && current_player.type === LOCAL_USER && current_player.team === event.target.dataset.team) {
         selected_piece = event.target 
         selected_piece.classList.add("selected")
         
@@ -397,11 +434,13 @@ function handleSquareClick(event) {
         return
     }
     // Do not allow to move one piece over another of the same team
-    if (selected_piece && event.target.dataset.team === human_team) {
+    if (selected_piece && event.target.dataset.team === current_player.team) {
+        selected_piece.classList.remove('selected')
+        selected_piece = event.target
+        selected_piece.classList.add('selected')
         return
     }
     
-    // Execute the move using the shared function
     if (selected_piece) {
         executeMove(selected_piece, event.target)
     }
@@ -414,12 +453,12 @@ function handleDragStart(event) {
     }
     
     // Initial assignement
-    if (human_team === undefined && event.target.dataset.team) { 
-        human_team = event.target.dataset.team 
+    if (current_player === undefined && event.target.dataset.team) { 
+        assignCurrentPlayer(event.target.dataset.team)
     }
     
     // Only allow dragging pieces that belong to the human player
-    if (selected_piece === undefined && human_team && human_team === event.target.dataset.team) {
+    if (selected_piece === undefined && current_player.type === LOCAL_USER && current_player.team === event.target.dataset.team) {
         selected_piece = event.target 
         selected_piece.classList.add("selected")
 
@@ -484,7 +523,7 @@ function handleDrop(event) {
     if (!fromSquare) return
     
     // Don't allow dropping on your own pieces
-    if (event.target.dataset.team === human_team) {
+    if (event.target.dataset.team === current_player.team) {
         return
     }
     
@@ -494,7 +533,6 @@ function handleDrop(event) {
 }
 
 function validateMove(piece_name, from, to, ok, ko) {
-    if (piece_name === 'pawn' && from.includes('7', 1)) to = to + selected_promotion.dataset.piece
     move_call_in_progress = true;
     const api_url = '/api/board/validate-move'
     fetch(api_url, {
@@ -516,7 +554,40 @@ function validateMove(piece_name, from, to, ok, ko) {
             throw data
         }
     }).catch(error => {
-        console.log(`Safe catch : ${error}`)
+        console.log(`Safe catch on validateMove : ${error}`)
+        // Match must end
+        clearInterval(global_clock_interval_id)
+        global_clock_interval_id = undefined
+        match_ended = true
+    }).finally(() => {
+        move_call_in_progress = false;
+    });
+}
+
+function getRemoteAgentMove(ok, ko) {
+    move_call_in_progress = true;
+    const api_url = '/api/board/remote-agent-move'
+    fetch(api_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ fen: data_fen, agent: agent_data })
+    }).then(response => {
+        if (!response.ok) throw `${response.url} ${response.status} ${response.statusText}`
+        
+        return response.json()
+    }).then(data => {
+        if (data.uci && data.status === 'OK') {
+            data_uci = data.uci
+            if (ok) ok()
+        } else if (data.fen && data.status === 'KO' && ko) {
+            ko()
+        } else {
+            throw data
+        }
+    }).catch(error => {
+        console.log(`Safe catch on getRemoteAgentMove : ${error}`)
         // Match must end
         clearInterval(global_clock_interval_id)
         global_clock_interval_id = undefined
@@ -527,9 +598,8 @@ function validateMove(piece_name, from, to, ok, ko) {
 }
 
 function makeMove(piece_name, from, to, ok, checkmate) {
-    if (piece_name === 'pawn' && from.includes('7', 1)) to = to + selected_promotion.dataset.piece
     move_call_in_progress = true;
-    const api_url = '/api/board/' + (from && to ? 'make-move':'make-ai-move')
+    const api_url = '/api/board/make-move'
     fetch(api_url, {
         method: 'POST',
         headers: {

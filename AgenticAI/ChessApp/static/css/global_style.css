@@ -232,6 +232,7 @@ h1 {
         padding: 8px;
         border-color: transparent;
         color: rgba(44, 62, 80, 0.9);
+        width: 16ch;
     }
 }
 
